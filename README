@@ -1,0 +1,10 @@
+To compile the code
+
+1) Make sure your PC have MPI and OPENCV installed
+2) cd to build directory
+3) type "cmake ../"
+4) type "make"
+5) run "./img_procsr 1.jpg"
+6) press enter on the pics to proceed
+
+
