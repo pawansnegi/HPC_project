@@ -1,24 +1,30 @@
 // %HISTORY%
 // March 25 2018 - Pawan Negi - Initialize
 //
-#include<iostream>
 #include"face_detect/detect.hpp"
 #include"face_recog/recog.hpp"
 #include"face_track/track.hpp"
 #include <opencv2/core/core.hpp>
+#include <opencv2/face.hpp>
+#include <opencv2/face/facerec.hpp>
 #include <opencv2/highgui/highgui.hpp>
+
+#include <opencv2/imgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
+
 #include<mpi.h>
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 using namespace cv;
 using namespace std;
-int main(int argc, char** argv){
+using namespace face;
 
-    cout << "this is main.cpp"<< endl ;
-    if( argc != 2)
-    {
-     cout <<" Usage: display_image ImageToLoadAndDisplay" << endl;
-     return -1;
-    }
+int main(int argc, const char *argv[]) {
+    // Check for valid command line arguments, print usage
+    // if no arguments were given.
     
     MPI_Init(NULL, NULL);
 
@@ -29,23 +35,52 @@ int main(int argc, char** argv){
     // Get the rank of the process
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
-    // Get the name of the processor
-    char processor_name[MPI_MAX_PROCESSOR_NAME];
-    int name_len;
-    MPI_Get_processor_name(processor_name, &name_len);
-
-    // Print off a hello world message
-    printf("Hello world from processor %s, rank %d"
-           " out of %d processors\n",
-           processor_name, world_rank, world_size);
-
-    // Finalize the MPI environment.
-    detect::somedetectfucntion2(2);
-    recog::somerecogfucntion2(2);
-    track::sometrackfucntion2(2);
     
-    MPI_Finalize();
+    if (argc < 2) {
+        cout << "usage: " << argv[0] << " <csv.ext> <output_folder> " << endl;
+        exit(1);
+    }
+    string output_folder = ".";
+    if (argc == 3) {
+        output_folder = string(argv[2]);
+    }
+    // Get the path to your CSV.
+    string fn_csv = string(argv[1]);
+    // These vectors hold the images and corresponding labels.
+    vector<Mat> images;
+    vector<int> labels;
+    // Read in the data. This can fail if no valid
+    // input filename is given.
+    try {
+        recog::read_csv(fn_csv, images, labels);
+    } catch (cv::Exception& e) {
+        cerr << "Error opening file \"" << fn_csv << "\". Reason: " << e.msg << endl;
+        // nothing more we can do
+        exit(1);
+    }
+    // Quit if there are not enough images for this demo.
+    if(images.size() <= 1) {
+        string error_message = "This demo needs at least 2 images to work. Please add more images to your data set!";
+        CV_Error(CV_StsError, error_message);
+    }
+    // Get the height from the first image. We'll need this
+    // later in code to reshape the images to their original
+    // size:
+    int height = images[0].rows;
+    // The following lines simply get the last images from
+    // your dataset and remove it from the vector. This is
+    // done, so that the training data (which we learn the
+    // cv::FaceRecognizer on) and the test data we test
+    // the model with, do not overlap.
+    Mat testSample = images[11];
+    int testLabel = labels[11];
+    images.pop_back();
+    labels.pop_back();
+    
+    int predictedLabel = recog::inbuilt_recognition(images , labels , testSample);
+    string result_message = format("Predicted class = %d / Actual class = %d."
+            , predictedLabel, testLabel);
+    cout << result_message << endl ;
+    
     return 0;
 }
-
