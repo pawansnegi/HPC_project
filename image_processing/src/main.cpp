@@ -82,5 +82,18 @@ int main(int argc, const char *argv[]) {
             , predictedLabel, testLabel);
     cout << result_message << endl ;
     
+    
+    for (int i = 0 ; i < images.size() ; i++){
+        images[i] = images[i].reshape(1, 1 );
+    }
+
+    Mat mean = recog::calculate_mean(images) ;
+    cout << mean.at<double>(112) << endl;
+    imshow("mean", mean.reshape(1,height));
+    Mat diffmat = recog::create_variance_mat(images , mean) ;
+    
+    if(argc == 2) {
+        waitKey(0);
+    }
     return 0;
 }
