@@ -31,7 +31,7 @@ extern "C" {
         /*function*/
         void create_rectangle(int facex , int facey , int w , int h , cv::Mat frame) ;
         /*function*/
-        cv::Mat crop_image(cv::Mat frame , int facex , int facey , int w , int h);
+        void crop_image(cv::Mat *out , cv::Mat frame , int facex , int facey , int w , int h);
 
     }
 

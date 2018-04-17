@@ -19,8 +19,9 @@ namespace detect {
     }
 
     /*description*/
-    Mat crop_image(Mat frame, int facex, int facey, int w, int h) {
-        return frame;
+    void crop_image(Mat *out , Mat frame, int facex, int facey, int w, int h) {
+        cv::Rect myROI(facex, facey, w, h);
+        *out = frame(myROI);
     }
 
     /*description*/
@@ -31,12 +32,16 @@ namespace detect {
         cvtColor(frame, frame_gray, CV_BGR2GRAY);
         equalizeHist(frame_gray, frame_gray);
 
+        Mat cropped ;
         //-- Detect faces
         face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
         for (size_t i = 0; i < faces.size(); i++) {
             create_rectangle(faces[i].x, faces[i].y, faces[i].width, faces[i].height, frame);
+            crop_image(&cropped , frame , faces[i].x, faces[i].y, faces[i].width, faces[i].height);
         }
         //-- Show what you got
-        imshow("Face detection", frame);
+//        if (cropped.empty() == 0)
+//        imshow("Face detection", cropped);
+        imshow("Face detection", cropped);
     }
 }
