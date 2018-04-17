@@ -7,30 +7,36 @@
 using namespace std;
 using namespace cv;
 
-namespace detect{
-//description
-//
-    void somedetectfucntion1(int test) {
-        Mat image;
-        image = imread("4.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
+namespace detect {
 
-        if(! image.data )                              // Check for invalid input
-        {
-            cout <<  "Could not open or find the image" << std::endl ;
-	    return ;
-        }
+    /*description*/
+    void create_rectangle(int facex, int facey, int w, int h, Mat frame) {
 
-        namedWindow( "Display window", WINDOW_AUTOSIZE );// Create a window for display.
-        imshow( "Display window", image );                   // Show our image inside it.
+        Point center1(facex, facey);
+        Point center2(facex + w, facey + h);
+        cv::rectangle(frame, center1, center2, Scalar(255, 0, 255), 4);
 
-        waitKey(0);                                          // Wait for a keystroke in the window
-        cout << "this is somedetectfunction1" << endl ;
     }
 
+    /*description*/
+    Mat crop_image(Mat frame, int facex, int facey, int w, int h) {
+        return frame;
+    }
 
-//description
-//
-    void somedetectfucntion2(int test) {
-        somedetectfucntion1(test); 
+    /*description*/
+    void detectAndDisplay(Mat frame, cv::CascadeClassifier face_cascade) {
+        std::vector<Rect> faces;
+        Mat frame_gray;
+
+        cvtColor(frame, frame_gray, CV_BGR2GRAY);
+        equalizeHist(frame_gray, frame_gray);
+
+        //-- Detect faces
+        face_cascade.detectMultiScale(frame_gray, faces, 1.1, 2, 0 | CV_HAAR_SCALE_IMAGE, Size(30, 30));
+        for (size_t i = 0; i < faces.size(); i++) {
+            create_rectangle(faces[i].x, faces[i].y, faces[i].width, faces[i].height, frame);
+        }
+        //-- Show what you got
+        imshow("Face detection", frame);
     }
 }
