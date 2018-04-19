@@ -29,7 +29,7 @@ using namespace face;
 ( std::ostringstream() << std::dec << x ) ).str()
 
 void recognition_call() {
-    
+
     /*originial source
      https://docs.opencv.org/2.4/modules/contrib/doc/facerec/facerec_tutorial.html
      */
@@ -84,20 +84,20 @@ void detection_call() {
     Mat frame;
 
     //-- 2. Read the video stream
-    std::vector<Rect> faces ;
+    std::vector<Rect> faces;
     if (cap.isOpened()) {
         while (true) {
             cap >> frame;
-            
+
             //-- 3. Apply the classifier to the frame
             if (!frame.empty()) {
-                detect::detectAndDisplay(frame , &faces);
+                detect::detectAndDisplay(frame, &faces);
             } else {
                 printf(" --(!) No captured frame -- Break!");
                 break;
             }
 
-            cout << faces[0].x << endl ;
+            cout << faces[0].x << endl;
             imshow("Face detection", frame);
             int c = waitKey(10);
             if ((char) c == 'c') {
@@ -118,54 +118,56 @@ void tracking_call() {
     // Read video
     VideoCapture video(0);
     Mat frame;
-    std::vector<Rect> faces ;
-    bool detect = true ; 
-    int detectagain = 0 ;
-    
+    std::vector<Rect> faces;
+    bool detect = true;
+    int detectagain = 0;
+
     Rect2d bbox(287, 23, 86, 320);
     // Exit if video is not opened
     if (video.isOpened()) {
         video >> frame;
-        detect::detectAndDisplay(frame , &faces);
+        detect::detectAndDisplay(frame, &faces);
         while (true) {
-            detectagain++ ;
+            detectagain++;
             video >> frame;
-            
-            if (detect){
-            bbox.x = faces[0].x;
-            bbox.y = faces[0].y;
-            bbox.height = faces[0].height;
-            bbox.width = faces[0].width;
-            tracker->init(frame, bbox);
-            detect = false ;
+
+            if (detect) {
+                tracker->clear();
+                bbox.x = faces[0].x;
+                bbox.y = faces[0].y;
+                bbox.height = faces[0].height;
+                bbox.width = faces[0].width;
+
+                tracker = TrackerMedianFlow::create();
+                tracker->init(frame, bbox);
+                detect = false;
             }
             bool ok = tracker->update(frame, bbox);
-            cout << "updating = " <<  bbox.x << " " << bbox.y << " "
-                    << " " << bbox.height << " " << bbox.width << endl ;
-            if (bbox.height < 50 || detectagain > 50) {
+            cout << "updating = " << bbox.x << " " << bbox.y << " "
+                    << " " << bbox.height << " " << bbox.width << endl;
+            if (detectagain > 50) {
+                detect::detectAndDisplay(frame, &faces);
                 putText(frame, "detected", Point(faces[0].x + 50, faces[0].y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
-                detect::detectAndDisplay(frame , &faces);
-                detectagain = 0 ;
-                detect = true ;
+                detectagain = 0;
+                detect = true;
             } else {
-                putText(frame, "tracked", Point(bbox.x + 50, bbox.y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 234, 21), 2);
-                rectangle(frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
+                putText(frame, "tracked", Point(bbox.x + 50, bbox.y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(256, 0, 0), 2);
+                rectangle(frame, bbox, Scalar(255, 0, 0), 2, 1);
                 //printf(" --(!) No captured frame -- Break!");
                 //break;
             }
 
-            
+
             putText(frame, "Pawan", Point((faces)[0].x, (faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
-            cout << faces[0].x << endl ;
+            cout << faces[0].x << endl;
             imshow("Face detection", frame);
             int c = waitKey(10);
             if ((char) c == 'c') {
                 break;
             }
         }
-    }
-    else{
-        cout << "can't open vedio" << endl ;
+    } else {
+        cout << "can't open vedio" << endl;
     }
 }
 
@@ -184,8 +186,8 @@ int main(int argc, const char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     //recognition_call();
-    detection_call();
-    //tracking_call();
+    //detection_call();
+    tracking_call();
 
     return 0;
 }
