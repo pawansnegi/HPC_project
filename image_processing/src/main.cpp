@@ -10,7 +10,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/objdetect.hpp>
-
+#include <opencv2/tracking.hpp>
+#include <opencv2/core/ocl.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 
@@ -24,7 +25,14 @@ using namespace cv;
 using namespace std;
 using namespace face;
 
+#define SSTR( x ) static_cast< std::ostringstream & >( \
+( std::ostringstream() << std::dec << x ) ).str()
+
 void recognition_call() {
+    
+    /*originial source
+     https://docs.opencv.org/2.4/modules/contrib/doc/facerec/facerec_tutorial.html
+     */
     // These vectors hold the images and corresponding labels.
     vector<Mat> images;
     vector<int> labels;
@@ -69,36 +77,28 @@ void recognition_call() {
 }
 
 void detection_call() {
+    /*original source
+     https://docs.opencv.org/2.4/doc/tutorials/objdetect/cascade_classifier/cascade_classifier.html
+     */
     VideoCapture cap(0);
     Mat frame;
 
-    cv::CascadeClassifier face_cascade;
-    cv::CascadeClassifier eyes_cascade;
-
-    /** Global variables */
-    String face_cascade_name = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml";
-    String eyes_cascade_name = "/usr/local/share/OpenCV/haarcascades/haarcascade_eye_tree_eyeglasses.xml";
-
-    //-- 1. Load the cascades
-    if (!face_cascade.load(face_cascade_name)) {
-        printf("--(!)Error loading\n");
-        exit(-1);
-    };
-
     //-- 2. Read the video stream
-
+    std::vector<Rect> faces ;
     if (cap.isOpened()) {
         while (true) {
             cap >> frame;
-
+            
             //-- 3. Apply the classifier to the frame
             if (!frame.empty()) {
-                detect::detectAndDisplay(frame, face_cascade);
+                detect::detectAndDisplay(frame , &faces);
             } else {
                 printf(" --(!) No captured frame -- Break!");
                 break;
             }
 
+            cout << faces[0].x << endl ;
+            imshow("Face detection", frame);
             int c = waitKey(10);
             if ((char) c == 'c') {
                 break;
@@ -109,7 +109,64 @@ void detection_call() {
 
 void tracking_call() {
 
-    cout << "tracking call" << endl;
+    /*original source 
+     https://www.learnopencv.com/object-tracking-using-opencv-cpp-python/
+     */
+    // Create a tracker
+    Ptr<Tracker> tracker;
+    tracker = TrackerMedianFlow::create();
+    // Read video
+    VideoCapture video(0);
+    Mat frame;
+    std::vector<Rect> faces ;
+    bool detect = true ; 
+    int detectagain = 0 ;
+    
+    Rect2d bbox(287, 23, 86, 320);
+    // Exit if video is not opened
+    if (video.isOpened()) {
+        video >> frame;
+        detect::detectAndDisplay(frame , &faces);
+        while (true) {
+            detectagain++ ;
+            video >> frame;
+            
+            if (detect){
+            bbox.x = faces[0].x;
+            bbox.y = faces[0].y;
+            bbox.height = faces[0].height;
+            bbox.width = faces[0].width;
+            tracker->init(frame, bbox);
+            detect = false ;
+            }
+            bool ok = tracker->update(frame, bbox);
+            cout << "updating = " <<  bbox.x << " " << bbox.y << " "
+                    << " " << bbox.height << " " << bbox.width << endl ;
+            if (bbox.height < 50 || detectagain > 50) {
+                putText(frame, "detected", Point(faces[0].x + 50, faces[0].y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+                detect::detectAndDisplay(frame , &faces);
+                detectagain = 0 ;
+                detect = true ;
+            } else {
+                putText(frame, "tracked", Point(bbox.x + 50, bbox.y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 234, 21), 2);
+                rectangle(frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
+                //printf(" --(!) No captured frame -- Break!");
+                //break;
+            }
+
+            
+            putText(frame, "Pawan", Point((faces)[0].x, (faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+            cout << faces[0].x << endl ;
+            imshow("Face detection", frame);
+            int c = waitKey(10);
+            if ((char) c == 'c') {
+                break;
+            }
+        }
+    }
+    else{
+        cout << "can't open vedio" << endl ;
+    }
 }
 
 int main(int argc, const char *argv[]) {
