@@ -25,9 +25,17 @@ namespace recog {
     //
 
     cv::Mat create_variance_mat(std::vector<cv::Mat> images, cv::Mat mean) {
-        
-        
-        return images[0];
+        //Mat myvariance = images[0]*0.0;
+        Mat myvariance(600,600,CV_16SC3);
+//        Mat matrix();
+//        for(int i=0;i<images.size();i++){
+//             Mat temp=norm_0_255(images[i])-mean;
+//             myvariance +=(temp*temp.t)/images.size();
+//
+//
+//        }        
+        return myvariance;
+        //return images[0];
 
     }
 
@@ -35,6 +43,7 @@ namespace recog {
     //
 
     cv::Mat calculate_eigen(cv::Mat cov_matrix) {
+
         return cov_matrix;
 
     }
@@ -68,7 +77,8 @@ namespace recog {
 
         // The following line predicts the label of a given
         // test image:
-        int predictedLabel = model->predict(inputimage);
+        //int predictedLabel = model->predict(inputimage);
+        int predictedLabel = model->predict(images[7]);
         return predictedLabel;
 
     }
