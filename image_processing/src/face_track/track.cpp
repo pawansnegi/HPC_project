@@ -29,4 +29,15 @@ namespace track{
     void sometrackfucntion2(int test){
         sometrackfucntion1(test); 
     }
+    
+// description
+    bool isLargeDeltaInFrames(Rect frame1, Rect frame2) {        
+        int deltaw = frame1.width - frame2.width ;
+        int deltah = frame1.height - frame2.height ;
+        
+        if (deltaw * deltaw + deltah * deltah > 25000 )
+            return true ;
+        else
+            return false ;
+    }
 }

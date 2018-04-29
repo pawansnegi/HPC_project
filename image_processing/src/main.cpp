@@ -120,6 +120,7 @@ void tracking_call() {
     Mat frame;
     std::vector<Rect> faces;
     bool detect = true;
+    int wait = 0 ;
     int detectagain = 0;
 
     Rect2d bbox(287, 23, 86, 320);
@@ -131,7 +132,8 @@ void tracking_call() {
             detectagain++;
             video >> frame;
 
-            if (detect) {
+            if ((detect && !track::isLargeDeltaInFrames(bbox , faces[0])) || 
+                    ( wait < 5)) {
                 tracker->clear();
                 bbox.x = faces[0].x;
                 bbox.y = faces[0].y;
@@ -141,11 +143,19 @@ void tracking_call() {
                 tracker = TrackerMedianFlow::create();
                 tracker->init(frame, bbox);
                 detect = false;
+                wait++ ;
             }
-            bool ok = tracker->update(frame, bbox);
+//            else{
+//                tracker->clear();
+//                tracker = TrackerMedianFlow::create();
+//                tracker->init(frame, bbox);
+//                tracker->update(frame, bbox);
+//            }
+            
+            tracker->update(frame, bbox);
             cout << "updating = " << bbox.x << " " << bbox.y << " "
                     << " " << bbox.height << " " << bbox.width << endl;
-            if (detectagain > 50) {
+            if (detectagain > 100) {
                 detect::detectAndDisplay(frame, &faces);
                 putText(frame, "detected", Point(faces[0].x + 50, faces[0].y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
                 detectagain = 0;
