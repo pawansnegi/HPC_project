@@ -17,6 +17,7 @@ namespace recog {
             mymean += norm_0_255(images[i])/images.size() ;
             //cout << images.size() << endl ;
         }
+        
         return mymean;
     }
 
@@ -73,7 +74,6 @@ namespace recog {
 
         Ptr<BasicFaceRecognizer> model = EigenFaceRecognizer::create(); //EigenFaceRecognizer::create();
         model->train(images, labels);
-
 
         // The following line predicts the label of a given
         // test image:

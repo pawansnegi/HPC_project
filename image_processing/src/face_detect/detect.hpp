@@ -27,7 +27,7 @@ extern "C" {
     namespace detect {
 
         /*function description */
-        void detectAndDisplay(cv::Mat frame , cv::CascadeClassifier face_cascade);
+        cv::Mat detectAndDisplay(cv::Mat frame, std::vector<cv::Rect> *faces);
         /*function*/
         void create_rectangle(int facex , int facey , int w , int h , cv::Mat frame) ;
         /*function*/
