@@ -195,9 +195,8 @@ int main(int argc, const char *argv[]) {
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    //recognition_call();
-    //detection_call();
-    tracking_call();
-
+    recognition_call();
+    detection_call();
+    //tracking_call();
     return 0;
 }
