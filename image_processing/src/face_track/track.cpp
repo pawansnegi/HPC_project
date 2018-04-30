@@ -40,4 +40,18 @@ namespace track{
         else
             return false ;
     }
+    
+    bool isBoxAtCorner(Rect frame1 , int rows , int cols){
+        
+        int x1 = frame1.x ;
+        int y1 = frame1.y ;
+        int x2 = frame1.x + frame1.width ;
+        int y2 = frame1.y + frame1.height ;
+        
+        if(x1 < 1 || x2 > rows -1  || y1 <  1 || y2 > cols - 1  )
+            return true ;
+        else
+            return false ;
+        
+    }
 }

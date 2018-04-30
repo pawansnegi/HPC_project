@@ -36,6 +36,8 @@ using namespace cv;
        //fucntion description
        bool isLargeDeltaInFrames(Rect frame1, Rect frame2);
 
+       //fucntiom description
+       bool isBoxAtCorner(Rect frame1 , int rows , int cols);
 
    }
 
