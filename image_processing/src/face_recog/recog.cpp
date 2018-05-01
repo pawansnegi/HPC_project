@@ -149,7 +149,7 @@ namespace recog {
     }*/
     // Display if we are not writing to an output folder:
     
-        waitKey(0);
+       // waitKey(0);
     
         return predictedLabel;
 

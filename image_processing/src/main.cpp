@@ -29,9 +29,10 @@ using namespace face;
 #define SSTR( x ) static_cast< std::ostringstream & >( \
 ( std::ostringstream() << std::dec << x ) ).str()
 
-int recognition_call(cv::Mat frame){//void recognition_call() {
+void recognition_call() {//int recognition_call(cv::Mat frame){//void recognition_call() {
 
-    /*originial source
+    
+        /*originial source
      https://docs.opencv.org/2.4/modules/contrib/doc/facerec/facerec_tutorial.html
      */
     // These vectors hold the images and corresponding labels.
@@ -56,36 +57,82 @@ int recognition_call(cv::Mat frame){//void recognition_call() {
     int height = images[0].rows;
     //imshow("fum",images[0]);waitKey(0);
     //cout<<endl <<images[0].type()<<" "<<images[0].channels()<<" "<<images[0].rows<<"   "<<images[0].cols<<endl;
-    Mat testSample = frame;
-    int testLabel = labels[2];
-    images.pop_back();
-    labels.pop_back();
-    resize(testSample, testSample, Size(images[0].cols,images[0].rows),0 , 0);
-    //imshow("fum1",testSample);waitKey(0);
-    testSample.convertTo(testSample,CV_8U);
+        Ptr<BasicFaceRecognizer> model = FisherFaceRecognizer::create(); //EigenFaceRecognizer::create();
+        model->train(images, labels);
+
+
+    VideoCapture cap(0);
+    Mat frame;
+
+    //-- 2. Read the video stream
+    std::vector<Rect> faces;
+    if (cap.isOpened()) {
+        while (true) {
+            cap >> frame;
+            Mat det_face;
+            faces.empty();
+            cout<<faces.size()<<endl;
+            //-- 3. Apply the classifier to the frame
+            //if (!frame.empty()) {
+                det_face= detect::detectAndDisplay(frame, &faces);
+            //} else {
+            //    printf(" --(!) No captured frame -- Break!");
+            //    break;
+            //}
+            //    putText(frame, "kartheek", Point(0,0), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+            //cout << faces[0].x << endl;
+//            imshow("Face detection", frame);
+            //waitKey(10);
+            Mat testSample = det_face;
+//            images.pop_back();
+//            labels.pop_back();
+           if(!testSample.empty()){ 
+            resize(testSample, testSample, Size(112,92),0 , 0);
+            //imshow("fum1",testSample);waitKey(0);
+            testSample.convertTo(testSample,CV_8U);
 
     //cout<<endl<<testSample.type()<<" "<<testSample.channels()<<" " <<testSample.rows<<"   "<<testSample.cols<<endl;
     //cout<<endl <<testSample.rows<<"   "<<testSample.cols<<endl;
 
-    int predictedLabel = recog::inbuilt_recognition(images, labels, testSample);
-    string result_message = format("Predicted class = %d ",predictedLabel);/// Actual class = %d.", predictedLabel, testLabel);
-    cout << result_message << endl;
-     if(predictedLabel==1){
-                putText(frame, "kartheek", Point(0,0), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+        int predictedLabel = model->predict(testSample);//recog::inbuilt_recognition(images, labels, testSample);
+        
+        string result_message = format("Predicted class = %d ",predictedLabel);/// Actual class = %d.", predictedLabel, testLabel);
+         cout << result_message << endl;
+           
+        if(predictedLabel==0){
+                putText(frame, "kartheek", Point(100,100), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
             }
-
-    for (int i = 0; i < images.size(); i++) {
-        images[i] = images[i].reshape(1, 1);
+        if(predictedLabel==1){
+                putText(frame, "pawan", Point(100,100), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+            }
+           }
+             imshow("Face detection", frame);
+           
+//            if(pL==1){
+//                putText(frame, "kartheek", Point(0,0), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+//            }
+            int c = waitKey(10);
+            if ((char) c == 'c') {
+                break;
+            }
+            
+        }
     }
 
-    Mat mean = recog::calculate_mean(images);
-    //cout << mean.at<double>(112) << endl;
-    imshow("2mean", mean.reshape(1, height));
-    Mat diffmat = recog::create_variance_mat(images, mean);
 
-    Mat x;
-    waitKey(0);
-    return predictedLabel;
+
+//    for (int i = 0; i < images.size(); i++) {
+//        images[i] = images[i].reshape(1, 1);
+//    }
+//
+//    Mat mean = recog::calculate_mean(images);
+//    //cout << mean.at<double>(112) << endl;
+//    imshow("2mean", mean.reshape(1, height));
+//    Mat diffmat = recog::create_variance_mat(images, mean);
+//
+//    Mat x;
+//    waitKey(0);
+    //return predictedLabel;
 
 }
 
@@ -107,7 +154,7 @@ int recognition_call(cv::Mat frame){//void recognition_call() {
         return dst;
     }
 
-cv::Mat detection_call(){//void detection_call() {
+void detection_call() {//cv::Mat detection_call(){//void detection_call() {
     /*original source
      https://docs.opencv.org/2.4/doc/tutorials/objdetect/cascade_classifier/cascade_classifier.html
      */
@@ -131,20 +178,20 @@ cv::Mat detection_call(){//void detection_call() {
 
             //cout << faces[0].x << endl;
             imshow("Face detection", frame);
-            waitKey(10);
+            //waitKey(10);
             
-            int pL;pL=recognition_call(x);
+            //int pL;pL=recognition_call(x);
 //            if(pL==1){
 //                putText(frame, "kartheek", Point(0,0), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
 //            }
-            int c = waitKey(50);
+            int c = waitKey(1);
             if ((char) c == 'c') {
                 break;
             }
             
         }
     }
-    return frame;
+    //return frame;
 }
 
 void tracking_call() {
@@ -254,14 +301,11 @@ int main(int argc, const char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     //recognition_call();
-//<<<<<<< HEAD
-    Mat x=detection_call();
-    //recognition_call(x);
+    //Mat x=detection_call();
+    recognition_call();
     //tracking_call();
-//=======
     //detection_call();
     //tracking_call();
     
-//>>>>>>> d3126d1f99eeff41491dbc33775b8f6533648612
     return 0;
 }

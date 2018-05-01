@@ -59,39 +59,25 @@ namespace detect {
         detectFace(face_cascade , newframe ,
             frame_gray , faces , eye) ;
 
-//<<<<<<< HEAD
-        for (size_t i = 0; i < faces->size(); i++) {
-            crop_image(&cropped, frame, (*faces)[i].x, (*faces)[i].y, (*faces)[i].width, (*faces)[i].height);
-            create_rectangle((*faces)[i].x, (*faces)[i].y, (*faces)[i].width, (*faces)[i].height, frame);
-        }
-                //-- Show what you got
-                if (cropped.empty() == 0){
-                    std::ostringstream oss;
-                    oss << "karhteek" << rand() % (1+100) << ".jpg" ;
-                    std::string var = oss.str();
-                    imwrite(var.c_str(), cropped);
-                }
+       
+           
 
-//        putText(frame, "Pawan", Point((*faces)[0].x, (*faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
-//        imshow("Face detection", frame);
-        //cout<<endl<<cropped.channels()<<" "<<cropped.type()<<" "<<cropped.rows<<" "<<cropped.cols<<endl;
-//=======
         cropped = cropAndCreateRect(frame , faces) ;
+        if(!cropped.empty())
         cvtColor(cropped,cropped,CV_BGR2GRAY);
 
         
-        //        -- Show what you got
-        //        if (cropped.empty() == 0){
-        //            std::ostringstream oss;
-        //            oss << "karhteek" << rand() % (1+100) << ".jpg" ;
-        //            std::string var = oss.str();
-        //            imwrite(var.c_str(), cropped);
-        //        }
+                //-- Show what you got
+//                if (cropped.empty() == 0){
+//                    std::ostringstream oss;
+//                    oss << "karhteek" << rand() % (1+100) << ".jpg" ;
+//                    std::string var = oss.str();
+//                    imwrite(var.c_str(), cropped);
+//                }
 
         //putText(frame, "Pawan", Point((*faces)[0].x, (*faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
         //imshow("Face detection", frame_gray );
         //imshow("Face detection", frame);
-//>>>>>>> d3126d1f99eeff41491dbc33775b8f6533648612
         return cropped;
     }
 
