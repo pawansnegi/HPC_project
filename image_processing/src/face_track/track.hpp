@@ -29,10 +29,6 @@ using namespace cv;
    #endif
 
    namespace track{
-       // function description
-       void sometrackfucntion1(int test) ;
-       // function description
-       void sometrackfucntion2(int test) ;
        //fucntion description
        bool isLargeDeltaInFrames(Rect frame1, Rect frame2);
 

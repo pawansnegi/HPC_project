@@ -14,7 +14,8 @@
 #include <opencv2/core/ocl.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
-
+#include <OpenCL/opencl.h>
+#include <OpenCL/cl.h>
 #include<mpi.h>
 
 #include <iostream>
@@ -209,8 +210,8 @@ int main(int argc, const char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     //recognition_call();
-    detection_call();
-    //tracking_call();
+    //detection_call();
+    tracking_call();
     
     return 0;
 }
