@@ -15,8 +15,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 
-#include <OpenCL/opencl.h>
-#include <OpenCL/cl.h>
+//#include <OpenCL/opencl.h>
+//#include <OpenCL/cl.h>
 
 #include<mpi.h>
 
@@ -30,8 +30,9 @@ using namespace face;
 
 void recognition_call() {
 
+
     /*originial source
-     https://docs.opencv.org/2.4/modules/contrib/doc/facerec/facerec_tutorial.html
+ https://docs.opencv.org/2.4/modules/contrib/doc/facerec/facerec_tutorial.html
      */
     // These vectors hold the images and corresponding labels.
     vector<Mat> images;
@@ -39,44 +40,85 @@ void recognition_call() {
     // Read in the data. This can fail if no valid
     // input filename is given.
     try {
-        recog::read_csv("../data.csv", images, labels);
+        recog::read_csv<Mat>("../data.csv", images, labels , ';');
     } catch (cv::Exception& e) {
         cerr << "Error opening file \"" << "../data.csv" << "\". Reason: " << e.msg << endl;
         // nothing more we can do
         exit(1);
     }
-    // Quit if there are not enough images for this demo.
+    
     if (images.size() <= 1) {
         string error_message = "This demo needs at least 2 images to work. Please add more images to your data set!";
         CV_Error(CV_StsError, error_message);
     }
 
     int height = images[0].rows;
-    Mat testSample = images[11];
-    int testLabel = labels[11];
-    images.pop_back();
-    labels.pop_back();
 
-    int predictedLabel = recog::inbuilt_recognition(images, labels, testSample);
-    string result_message = format("Predicted class = %d / Actual class = %d."
-            , predictedLabel, testLabel);
-    cout << result_message << endl;
+    Ptr<BasicFaceRecognizer> model = FisherFaceRecognizer::create(); //EigenFaceRecognizer::create();
+    model->train(images, labels);
 
 
-    for (int i = 0; i < images.size(); i++) {
-        images[i] = images[i].reshape(1, 1);
+    VideoCapture cap(0);
+    Mat frame;
+
+    //-- 2. Read the video stream
+    std::vector<Rect> faces;
+    if (cap.isOpened()) {
+        while (true) {
+            cap >> frame;
+            Mat det_face;
+            faces.empty();
+            cout << faces.size() << endl;
+            if (!frame.empty()) {
+                det_face = detect::detectAndDisplay<Mat>(frame, &faces);
+            } else {
+                printf(" --(!) No captured frame -- Break!");
+                break;
+            }
+
+            Mat testSample = det_face;
+            if (!testSample.empty()) {
+                resize(testSample, testSample, Size(112, 92), 0, 0);
+                testSample.convertTo(testSample, CV_8U);
+
+                int predictedLabel = model->predict(testSample);
+
+                string result_message = format("Predicted class = %d ", predictedLabel);
+                cout << result_message << endl;
+
+                if (predictedLabel == 0) {
+                    putText(frame, "Kartheek", Point(100, 100), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+                }
+                if (predictedLabel == 1) {
+                    putText(frame, "Pawan", Point(100, 100), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+                }
+            }
+            imshow("Face detection", frame);
+
+            int c = waitKey(10);
+            if ((char) c == 'c') {
+                break;
+            }
+
+        }
     }
 
-    Mat mean = recog::calculate_mean(images);
-    cout << mean.at<double>(112) << endl;
-    imshow("mean", mean.reshape(1, height));
-    Mat diffmat = recog::create_variance_mat(images, mean);
-
-    waitKey(0);
+    //    for (int i = 0; i < images.size(); i++) {
+    //        images[i] = images[i].reshape(1, 1);
+    //    }
+    //
+    //    Mat mean = recog::calculate_mean(images);
+    //    //cout << mean.at<double>(112) << endl;
+    //    imshow("2mean", mean.reshape(1, height));
+    //    Mat diffmat = recog::create_variance_mat(images, mean);
+    //
+    //    Mat x;
+    //    waitKey(0);
+    //return predictedLabel;
 
 }
 
-void detection_call() {
+void detection_call() {//cv::Mat detection_call(){//void detection_call() {
     /*original source
      https://docs.opencv.org/2.4/doc/tutorials/objdetect/cascade_classifier/cascade_classifier.html
      */
@@ -88,7 +130,7 @@ void detection_call() {
     if (cap.isOpened()) {
         while (true) {
             cap >> frame;
-
+            Mat x;
             //-- 3. Apply the classifier to the frame
             if (!frame.empty()) {
                 detect::detectAndDisplay<Mat>(frame, &faces);
@@ -97,12 +139,13 @@ void detection_call() {
                 break;
             }
 
-            cout << faces[0].x << endl;
             imshow("Face detection", frame);
+
             int c = waitKey(1);
             if ((char) c == 'c') {
                 break;
             }
+
         }
     }
 }
@@ -121,10 +164,7 @@ void detection_call_ocl() {
     if (cap.isOpened()) {
         while (true) {
             cap.read(frame);
-            //cap >> frame;
 
-            
-            //-- 3. Apply the classifier to the frame
             if (!frame.empty()) {
                 detect::detectAndDisplay<UMat>(frame, &faces);
             } else {
@@ -132,14 +172,14 @@ void detection_call_ocl() {
                 break;
             }
 
-            //cout << faces[0].x << endl;
-            
             frame.copyTo(frame2);
             imshow("Face detection", frame2);
+
             int c = waitKey(1);
             if ((char) c == 'c') {
                 break;
             }
+            imshow("Face detection", frame);
         }
     }
 }
@@ -245,40 +285,40 @@ int main(int argc, const char *argv[]) {
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    //recognition_call();
-    detection_call();
+    recognition_call();
+    //detection_call_ocl() ;
+    //detection_call();
     //tracking_call();
-    //detection_call_ocl();
-    
-//    cv::ocl::Context context;
-//    std::vector<cv::ocl::PlatformInfo> platforms;
-//    cv::ocl::getPlatfomsInfo(platforms);
-//    for (size_t i = 0; i < platforms.size(); i++)
-//    {
-//        //Access to Platform
-//        const cv::ocl::PlatformInfo* platform = &platforms[i];
-//
-//        //Platform Name
-//        std::cout << "Platform Name: " << platform->name().c_str() << "\n" << endl;
-//
-//        //Access Device within Platform
-//        cv::ocl::Device current_device;
-//        for (int j = 0; j < platform->deviceNumber(); j++)
-//        {
-//            //Access Device
-//            platform->getDevice(current_device, j);
-//            int deviceType = current_device.type();
-//            cout << "devide type " << context.ndevices() << endl ;
-//            cout << "Device name:  " << current_device.name() << endl;
-//            if (deviceType == 2)
-//                cout << context.ndevices() << " CPU devices are detected." << std::endl;
-//            if (deviceType == 4)
-//                cout << context.ndevices() << " GPU devices are detected." << std::endl;
-//            cout << "===============================================" << endl << endl;
-//            
-//            //cin.ignore(1);
-//        }
-//    }
+
+    //    cv::ocl::Context context;
+    //    std::vector<cv::ocl::PlatformInfo> platforms;
+    //    cv::ocl::getPlatfomsInfo(platforms);
+    //    for (size_t i = 0; i < platforms.size(); i++)
+    //    {
+    //        //Access to Platform
+    //        const cv::ocl::PlatformInfo* platform = &platforms[i];
+    //
+    //        //Platform Name
+    //        std::cout << "Platform Name: " << platform->name().c_str() << "\n" << endl;
+    //
+    //        //Access Device within Platform
+    //        cv::ocl::Device current_device;
+    //        for (int j = 0; j < platform->deviceNumber(); j++)
+    //        {
+    //            //Access Device
+    //            platform->getDevice(current_device, j);
+    //            int deviceType = current_device.type();
+    //            cout << "devide type " << context.ndevices() << endl ;
+    //            cout << "Device name:  " << current_device.name() << endl;
+    //            if (deviceType == 2)
+    //                cout << context.ndevices() << " CPU devices are detected." << std::endl;
+    //            if (deviceType == 4)
+    //                cout << context.ndevices() << " GPU devices are detected." << std::endl;
+    //            cout << "===============================================" << endl << endl;
+    //            
+    //            //cin.ignore(1);
+    //        }
+    //    }
 
     return 0;
 }

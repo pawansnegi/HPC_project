@@ -5,3 +5,7 @@
 
 using namespace std;
 using namespace cv;
+
+namespace detect{
+    
+}
