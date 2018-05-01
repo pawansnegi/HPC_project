@@ -8,8 +8,11 @@ project(img_procsr)
 
 find_package(MPI REQUIRED)
 find_package( OpenCV REQUIRED )
+find_package(OpenCL REQUIRED)
 
-include_directories(${MPI_INCLUDE_PATH} ${OpenCV_INCLUDE_DIRS})
+include_directories(${MPI_INCLUDE_PATH} 
+	            ${OpenCV_INCLUDE_DIRS}
+		    ${OPENCL_INCLUDE_DIR})
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 #
@@ -24,18 +27,14 @@ add_executable( img_procsr
     src/face_recog/recog.cpp
     src/face_track/track.cpp
 )
+IF(UNIX)
+target_link_libraries(img_procsr ${MPI_LIBRARIES} 
+	                         ${OpenCV_LIBS} 
+				 ${OPENCL_LIBRARIES})
+ENDIF(UNIX)
 
-target_link_libraries(img_procsr ${MPI_LIBRARIES} ${OpenCV_LIBS})
-
-if(MPI_COMPILE_FLAGS)
-	set_target_properties(img_procsr PROPERTIES
-    COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
-endif()
-
-if(MPI_LINK_FLAGS)
-	set_target_properties(img_procsr PROPERTIES
-    LINK_FLAGS "${MPI_LINK_FLAGS}")
-endif()
-
-
-
+IF(APPLE)
+target_link_libraries(img_procsr ${MPI_LIBRARIES} 
+	                         ${OpenCV_LIBS} 
+				 "-framework OpenCL")
+ENDIF(APPLE)

@@ -14,7 +14,8 @@
 #include <opencv2/core/ocl.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
-
+#include <OpenCL/opencl.h>
+#include <OpenCL/cl.h>
 #include<mpi.h>
 
 #include <iostream>
@@ -155,10 +156,13 @@ void tracking_call() {
     Ptr<Tracker> tracker;
     tracker = TrackerMedianFlow::create();
     // Read video
+    
     VideoCapture video(0);
     Mat frame;
     std::vector<Rect> faces;
     bool detect = true;
+    bool trackfail = false ;
+    int wait = 0 ;
     int detectagain = 0;
 
     Rect2d bbox(287, 23, 86, 320);
@@ -166,40 +170,64 @@ void tracking_call() {
     if (video.isOpened()) {
         video >> frame;
         detect::detectAndDisplay(frame, &faces);
+        
         while (true) {
-            detectagain++;
+//            detectagain++;
             video >> frame;
-
-            if (detect) {
-                tracker->clear();
-                bbox.x = faces[0].x;
-                bbox.y = faces[0].y;
-                bbox.height = faces[0].height;
-                bbox.width = faces[0].width;
-
-                tracker = TrackerMedianFlow::create();
-                tracker->init(frame, bbox);
-                detect = false;
-            }
-            bool ok = tracker->update(frame, bbox);
-            cout << "updating = " << bbox.x << " " << bbox.y << " "
-                    << " " << bbox.height << " " << bbox.width << endl;
-            if (detectagain > 50) {
-                detect::detectAndDisplay(frame, &faces);
-                putText(frame, "detected", Point(faces[0].x + 50, faces[0].y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
-                detectagain = 0;
-                detect = true;
-            } else {
-                putText(frame, "tracked", Point(bbox.x + 50, bbox.y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(256, 0, 0), 2);
-                rectangle(frame, bbox, Scalar(255, 0, 0), 2, 1);
-                //printf(" --(!) No captured frame -- Break!");
-                //break;
-            }
-
+            faces.erase(faces.begin() , faces.end());
+//
+//            cout << track::isLargeDeltaInFrames(bbox , faces[0]) << endl ;
+//            if ((detect && !track::isLargeDeltaInFrames(bbox , faces[0])) || 
+//                    ( wait < 5)) {
+//                tracker->clear();
+//                bbox.x = faces[0].x;
+//                bbox.y = faces[0].y;
+//                bbox.height = faces[0].height;
+//                bbox.width = faces[0].width;
+//
+//                tracker = TrackerMedianFlow::create();
+//                tracker->init(frame, bbox);
+//                detect = false;
+//                wait++ ;
+//            }else{
+//                trackfail = true ;
+//            }
+////            else{
+////                tracker->clear();
+////                tracker = TrackerMedianFlow::create();
+////                tracker->init(frame, bbox);
+////                tracker->update(frame, bbox);
+////            }
+//            
+//            tracker->update(frame, bbox);
+//            cout << "updating = " << bbox.x << " " << bbox.y << " "
+//                    << " " << detect << " " << bbox.width << endl;
+//            if (trackfail || track::isBoxAtCorner(bbox , frame.rows , frame.cols)) {
+                Mat cropped = detect::detectAndDisplay(frame, &faces);
+                
+                stringstream ss ;
+                ss << faces[0].x << " " << faces[0].width ;
+                string abc = ss.str() ;
+                
+                putText(frame, abc.c_str(), Point(faces[0].x + 50, faces[0].y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+//                detectagain = 0;
+//                detect = true;
+//                trackfail = false ;
+//            } else {
+//                putText(frame, "tracked", Point(bbox.x + 50, bbox.y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(256, 0, 0), 2);
+//                rectangle(frame, bbox, Scalar(255, 0, 0), 2, 1);
+//                //printf(" --(!) No captured frame -- Break!");
+//                //break;
+//            }
+//
 
             putText(frame, "Pawan", Point((faces)[0].x, (faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
             cout << faces[0].x << endl;
+<<<<<<< HEAD
             
+=======
+//            imshow("Face detection", frame);
+>>>>>>> d3126d1f99eeff41491dbc33775b8f6533648612
             int c = waitKey(10);
             if ((char) c == 'c') {
                 break;
@@ -226,8 +254,14 @@ int main(int argc, const char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     //recognition_call();
+<<<<<<< HEAD
     Mat x=detection_call();
     //recognition_call(x);
     //tracking_call();
+=======
+    //detection_call();
+    tracking_call();
+    
+>>>>>>> d3126d1f99eeff41491dbc33775b8f6533648612
     return 0;
 }
