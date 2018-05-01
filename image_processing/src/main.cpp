@@ -14,8 +14,8 @@
 #include <opencv2/core/ocl.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
-#include <OpenCL/opencl.h>
-#include <OpenCL/cl.h>
+//#include <OpenCL/opencl.h>
+//#include <OpenCL/cl.h>
 #include<mpi.h>
 
 #include <iostream>
@@ -46,7 +46,7 @@ int recognition_call(cv::Mat frame){//void recognition_call() {
         // nothing more we can do
         exit(1);
     }
-    //cout<<images.size()<<endl;
+    cout<<images.size()<<endl;
     // Quit if there are not enough images for this demo.
     if (images.size() <= 1) {
         string error_message = "This demo needs at least 2 images to work. Please add more images to your data set!";
@@ -121,13 +121,13 @@ cv::Mat detection_call(){//void detection_call() {
             cap >> frame;
             Mat x;
             //-- 3. Apply the classifier to the frame
-            if (!frame.empty()) {
+            //if (!frame.empty()) {
                 x= detect::detectAndDisplay(frame, &faces);
-            } else {
-                printf(" --(!) No captured frame -- Break!");
-                break;
-            }
-                putText(frame, "kartheek", Point(0,0), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+            //} else {
+            //    printf(" --(!) No captured frame -- Break!");
+            //    break;
+            //}
+            //    putText(frame, "kartheek", Point(0,0), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
 
             //cout << faces[0].x << endl;
             imshow("Face detection", frame);
@@ -220,14 +220,14 @@ void tracking_call() {
 //                //break;
 //            }
 //
-
-            putText(frame, "Pawan", Point((faces)[0].x, (faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
-            cout << faces[0].x << endl;
-<<<<<<< HEAD
+//
+//            putText(frame, "Pawan", Point((faces)[0].x, (faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+//            cout << faces[0].x << endl;
+//<<<<<<< HEAD
             
-=======
-//            imshow("Face detection", frame);
->>>>>>> d3126d1f99eeff41491dbc33775b8f6533648612
+//=======
+//           imshow("Face detection", frame);
+//>>>>>>> d3126d1f99eeff41491dbc33775b8f6533648612
             int c = waitKey(10);
             if ((char) c == 'c') {
                 break;
@@ -254,14 +254,14 @@ int main(int argc, const char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     //recognition_call();
-<<<<<<< HEAD
+//<<<<<<< HEAD
     Mat x=detection_call();
     //recognition_call(x);
     //tracking_call();
-=======
+//=======
     //detection_call();
-    tracking_call();
+    //tracking_call();
     
->>>>>>> d3126d1f99eeff41491dbc33775b8f6533648612
+//>>>>>>> d3126d1f99eeff41491dbc33775b8f6533648612
     return 0;
 }
