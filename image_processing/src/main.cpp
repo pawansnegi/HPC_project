@@ -14,8 +14,10 @@
 #include <opencv2/core/ocl.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
+
 #include <OpenCL/opencl.h>
 #include <OpenCL/cl.h>
+
 #include<mpi.h>
 
 #include <iostream>
@@ -25,9 +27,6 @@
 using namespace cv;
 using namespace std;
 using namespace face;
-
-#define SSTR( x ) static_cast< std::ostringstream & >( \
-( std::ostringstream() << std::dec << x ) ).str()
 
 void recognition_call() {
 
@@ -92,7 +91,7 @@ void detection_call() {
 
             //-- 3. Apply the classifier to the frame
             if (!frame.empty()) {
-                detect::detectAndDisplay(frame, &faces);
+                detect::detectAndDisplay<Mat>(frame, &faces);
             } else {
                 printf(" --(!) No captured frame -- Break!");
                 break;
@@ -100,7 +99,7 @@ void detection_call() {
 
             cout << faces[0].x << endl;
             imshow("Face detection", frame);
-            int c = waitKey(10);
+            int c = waitKey(1);
             if ((char) c == 'c') {
                 break;
             }
@@ -108,92 +107,129 @@ void detection_call() {
     }
 }
 
-void tracking_call() {
-
-    /*original source 
-     https://www.learnopencv.com/object-tracking-using-opencv-cpp-python/
+void detection_call_ocl() {
+    /*original source
+     https://docs.opencv.org/2.4/doc/tutorials/objdetect/cascade_classifier/cascade_classifier.html
      */
-    // Create a tracker
-    Ptr<Tracker> tracker;
-    tracker = TrackerMedianFlow::create();
-    // Read video
-    
-    VideoCapture video(0);
-    Mat frame;
-    std::vector<Rect> faces;
-    bool detect = true;
-    bool trackfail = false ;
-    int wait = 0 ;
-    int detectagain = 0;
+    VideoCapture cap(0);
+    UMat frame;
 
-    Rect2d bbox(287, 23, 86, 320);
-    // Exit if video is not opened
-    if (video.isOpened()) {
-        video >> frame;
-        detect::detectAndDisplay(frame, &faces);
-        
+    Mat frame2;
+    //detect::detectAndDisplay()
+    //-- 2. Read the video stream
+    std::vector<Rect> faces;
+    if (cap.isOpened()) {
         while (true) {
-//            detectagain++;
-            video >> frame;
-            faces.erase(faces.begin() , faces.end());
+            cap.read(frame);
+            //cap >> frame;
+
+            
+            //-- 3. Apply the classifier to the frame
+            if (!frame.empty()) {
+                detect::detectAndDisplay<UMat>(frame, &faces);
+            } else {
+                printf(" --(!) No captured frame -- Break!");
+                break;
+            }
+
+            //cout << faces[0].x << endl;
+            
+            frame.copyTo(frame2);
+            imshow("Face detection", frame2);
+            int c = waitKey(1);
+            if ((char) c == 'c') {
+                break;
+            }
+        }
+    }
+}
+
+//void tracking_call() {
 //
-//            cout << track::isLargeDeltaInFrames(bbox , faces[0]) << endl ;
-//            if ((detect && !track::isLargeDeltaInFrames(bbox , faces[0])) || 
-//                    ( wait < 5)) {
-//                tracker->clear();
-//                bbox.x = faces[0].x;
-//                bbox.y = faces[0].y;
-//                bbox.height = faces[0].height;
-//                bbox.width = faces[0].width;
+//    /*original source 
+//     https://www.learnopencv.com/object-tracking-using-opencv-cpp-python/
+//     */
+//    // Create a tracker
+//    Ptr<Tracker> tracker;
+//    tracker = TrackerMedianFlow::create();
+//    // Read video
+//    
+//    VideoCapture video(0);
+//    Mat frame;
+//    std::vector<Rect> faces;
+//    bool detect = true;
+//    bool trackfail = false ;
+//    int wait = 0 ;
+//    int detectagain = 0;
 //
-//                tracker = TrackerMedianFlow::create();
-//                tracker->init(frame, bbox);
-//                detect = false;
-//                wait++ ;
-//            }else{
-//                trackfail = true ;
-//            }
-////            else{
+//    Rect2d bbox(287, 23, 86, 320);
+//    // Exit if video is not opened
+//    if (video.isOpened()) {
+//        video >> frame;
+//        detect::detectAndDisplay<Mat>(frame, &faces);
+//        
+//        while (true) {
+////            detectagain++;
+//            video >> frame;
+//            faces.erase(faces.begin() , faces.end());
+////
+////            cout << track::isLargeDeltaInFrames(bbox , faces[0]) << endl ;
+////            if ((detect && !track::isLargeDeltaInFrames(bbox , faces[0])) || 
+////                    ( wait < 5)) {
 ////                tracker->clear();
+////                bbox.x = faces[0].x;
+////                bbox.y = faces[0].y;
+////                bbox.height = faces[0].height;
+////                bbox.width = faces[0].width;
+////
 ////                tracker = TrackerMedianFlow::create();
 ////                tracker->init(frame, bbox);
-////                tracker->update(frame, bbox);
+////                detect = false;
+////                wait++ ;
+////            }else{
+////                trackfail = true ;
 ////            }
-//            
-//            tracker->update(frame, bbox);
-//            cout << "updating = " << bbox.x << " " << bbox.y << " "
-//                    << " " << detect << " " << bbox.width << endl;
-//            if (trackfail || track::isBoxAtCorner(bbox , frame.rows , frame.cols)) {
-                Mat cropped = detect::detectAndDisplay(frame, &faces);
-                
-                stringstream ss ;
-                ss << faces[0].x << " " << faces[0].width ;
-                string abc = ss.str() ;
-                
-                putText(frame, abc.c_str(), Point(faces[0].x + 50, faces[0].y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
-//                detectagain = 0;
-//                detect = true;
-//                trackfail = false ;
-//            } else {
-//                putText(frame, "tracked", Point(bbox.x + 50, bbox.y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(256, 0, 0), 2);
-//                rectangle(frame, bbox, Scalar(255, 0, 0), 2, 1);
-//                //printf(" --(!) No captured frame -- Break!");
-//                //break;
-//            }
+//////            else{
+//////                tracker->clear();
+//////                tracker = TrackerMedianFlow::create();
+//////                tracker->init(frame, bbox);
+//////                tracker->update(frame, bbox);
+//////            }
+////            
+////            tracker->update(frame, bbox);
+////            cout << "updating = " << bbox.x << " " << bbox.y << " "
+////                    << " " << detect << " " << bbox.width << endl;
+////            if (trackfail || track::isBoxAtCorner(bbox , frame.rows , frame.cols)) {
+//                Mat cropped = detect::detectAndDisplay<Mat>(frame, &faces);
+//                
+//                stringstream ss ;
+//                ss << faces[0].x << " " << faces[0].width ;
+//                string abc = ss.str() ;
+//                
+//                putText(frame, abc.c_str(), Point(faces[0].x + 50, faces[0].y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+////                detectagain = 0;
+////                detect = true;
+////                trackfail = false ;
+////            } else {
+////                putText(frame, "tracked", Point(bbox.x + 50, bbox.y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(256, 0, 0), 2);
+////                rectangle(frame, bbox, Scalar(255, 0, 0), 2, 1);
+////                //printf(" --(!) No captured frame -- Break!");
+////                //break;
+////            }
+////
 //
-
-            putText(frame, "Pawan", Point((faces)[0].x, (faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
-            cout << faces[0].x << endl;
-//            imshow("Face detection", frame);
-            int c = waitKey(10);
-            if ((char) c == 'c') {
-                break;
-            }
-        }
-    } else {
-        cout << "can't open vedio" << endl;
-    }
-}
+//            putText(frame, "Pawan", Point((faces)[0].x, (faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+//            cout << faces[0].x << endl;
+////            imshow("Face detection", frame);
+//            int c = waitKey(10);
+//            if ((char) c == 'c') {
+//                break;
+//            }
+//        }
+//    } else {
+//        cout << "can't open vedio" << endl;
+//    }
+//}
 
 int main(int argc, const char *argv[]) {
     // Check for valid command line arguments, print usage
@@ -210,8 +246,39 @@ int main(int argc, const char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
     //recognition_call();
-    //detection_call();
-    tracking_call();
+    detection_call();
+    //tracking_call();
+    //detection_call_ocl();
     
+//    cv::ocl::Context context;
+//    std::vector<cv::ocl::PlatformInfo> platforms;
+//    cv::ocl::getPlatfomsInfo(platforms);
+//    for (size_t i = 0; i < platforms.size(); i++)
+//    {
+//        //Access to Platform
+//        const cv::ocl::PlatformInfo* platform = &platforms[i];
+//
+//        //Platform Name
+//        std::cout << "Platform Name: " << platform->name().c_str() << "\n" << endl;
+//
+//        //Access Device within Platform
+//        cv::ocl::Device current_device;
+//        for (int j = 0; j < platform->deviceNumber(); j++)
+//        {
+//            //Access Device
+//            platform->getDevice(current_device, j);
+//            int deviceType = current_device.type();
+//            cout << "devide type " << context.ndevices() << endl ;
+//            cout << "Device name:  " << current_device.name() << endl;
+//            if (deviceType == 2)
+//                cout << context.ndevices() << " CPU devices are detected." << std::endl;
+//            if (deviceType == 4)
+//                cout << context.ndevices() << " GPU devices are detected." << std::endl;
+//            cout << "===============================================" << endl << endl;
+//            
+//            //cin.ignore(1);
+//        }
+//    }
+
     return 0;
 }
