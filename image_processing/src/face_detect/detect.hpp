@@ -77,6 +77,7 @@ extern "C" {
         template <class mattype>
         mattype detectAndDisplay(mattype frame, std::vector<Rect> *faces) {
 
+            bool saveimage = false;
             cv::CascadeClassifier face_cascade;
 
             String face_cascade_name = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml";
@@ -101,18 +102,19 @@ extern "C" {
                     frame_gray, faces, eye);
 
             cropped = cropAndCreateRect(frame, faces);
+            if (!cropped.empty())
+                cvtColor(cropped, cropped, CV_BGR2GRAY);
 
-            //        -- Show what you got
-            //        if (cropped.empty() == 0){
-            //            std::ostringstream oss;
-            //            oss << "karhteek" << rand() % (1+100) << ".jpg" ;
-            //            std::string var = oss.str();
-            //            imwrite(var.c_str(), cropped);
-            //        }
+            if (saveimage == true) {
 
-            //putText(frame, "Pawan", Point((*faces)[0].x, (*faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
-            //imshow("Face detection", frame_gray );
-            //imshow("Face detection", frame);
+                if (cropped.empty() == 0) {
+                    std::ostringstream oss;
+                    oss << "karhteek" << rand() % (1 + 100) << ".jpg";
+                    std::string var = oss.str();
+                    imwrite(var.c_str(), cropped);
+                }
+            }
+
             return cropped;
         }
 
