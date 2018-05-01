@@ -28,7 +28,7 @@ using namespace face;
 #define SSTR( x ) static_cast< std::ostringstream & >( \
 ( std::ostringstream() << std::dec << x ) ).str()
 
-void recognition_call() {
+int recognition_call(cv::Mat frame){//void recognition_call() {
 
     /*originial source
      https://docs.opencv.org/2.4/modules/contrib/doc/facerec/facerec_tutorial.html
@@ -45,6 +45,7 @@ void recognition_call() {
         // nothing more we can do
         exit(1);
     }
+    //cout<<images.size()<<endl;
     // Quit if there are not enough images for this demo.
     if (images.size() <= 1) {
         string error_message = "This demo needs at least 2 images to work. Please add more images to your data set!";
@@ -52,31 +53,60 @@ void recognition_call() {
     }
 
     int height = images[0].rows;
-    Mat testSample = images[11];
-    int testLabel = labels[11];
+    //imshow("fum",images[0]);waitKey(0);
+    //cout<<endl <<images[0].type()<<" "<<images[0].channels()<<" "<<images[0].rows<<"   "<<images[0].cols<<endl;
+    Mat testSample = frame;
+    int testLabel = labels[2];
     images.pop_back();
     labels.pop_back();
+    resize(testSample, testSample, Size(images[0].cols,images[0].rows),0 , 0);
+    //imshow("fum1",testSample);waitKey(0);
+    testSample.convertTo(testSample,CV_8U);
+
+    //cout<<endl<<testSample.type()<<" "<<testSample.channels()<<" " <<testSample.rows<<"   "<<testSample.cols<<endl;
+    //cout<<endl <<testSample.rows<<"   "<<testSample.cols<<endl;
 
     int predictedLabel = recog::inbuilt_recognition(images, labels, testSample);
-    string result_message = format("Predicted class = %d / Actual class = %d."
-            , predictedLabel, testLabel);
+    string result_message = format("Predicted class = %d ",predictedLabel);/// Actual class = %d.", predictedLabel, testLabel);
     cout << result_message << endl;
-
+     if(predictedLabel==1){
+                putText(frame, "kartheek", Point(0,0), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+            }
 
     for (int i = 0; i < images.size(); i++) {
         images[i] = images[i].reshape(1, 1);
     }
 
     Mat mean = recog::calculate_mean(images);
-    cout << mean.at<double>(112) << endl;
-    imshow("mean", mean.reshape(1, height));
+    //cout << mean.at<double>(112) << endl;
+    imshow("2mean", mean.reshape(1, height));
     Mat diffmat = recog::create_variance_mat(images, mean);
 
+    Mat x;
     waitKey(0);
+    return predictedLabel;
 
 }
 
-void detection_call() {
+    Mat norm_0_255(InputArray _src) {
+        Mat src = _src.getMat();
+        // Create and return normalized image:
+        Mat dst;
+        switch (src.channels()) {
+            case 1:
+                cv::normalize(_src, dst, 0, 255, NORM_MINMAX, CV_8UC1);
+                break;
+            case 3:
+                cv::normalize(_src, dst, 0, 255, NORM_MINMAX, CV_8UC3);
+                break;
+            default:
+                src.copyTo(dst);
+                break;
+        }
+        return dst;
+    }
+
+cv::Mat detection_call(){//void detection_call() {
     /*original source
      https://docs.opencv.org/2.4/doc/tutorials/objdetect/cascade_classifier/cascade_classifier.html
      */
@@ -88,23 +118,32 @@ void detection_call() {
     if (cap.isOpened()) {
         while (true) {
             cap >> frame;
-
+            Mat x;
             //-- 3. Apply the classifier to the frame
             if (!frame.empty()) {
-                detect::detectAndDisplay(frame, &faces);
+                x= detect::detectAndDisplay(frame, &faces);
             } else {
                 printf(" --(!) No captured frame -- Break!");
                 break;
             }
+                putText(frame, "kartheek", Point(0,0), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
 
-            cout << faces[0].x << endl;
+            //cout << faces[0].x << endl;
             imshow("Face detection", frame);
-            int c = waitKey(10);
+            waitKey(10);
+            
+            int pL;pL=recognition_call(x);
+//            if(pL==1){
+//                putText(frame, "kartheek", Point(0,0), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+//            }
+            int c = waitKey(50);
             if ((char) c == 'c') {
                 break;
             }
+            
         }
     }
+    return frame;
 }
 
 void tracking_call() {
@@ -160,14 +199,15 @@ void tracking_call() {
 
             putText(frame, "Pawan", Point((faces)[0].x, (faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
             cout << faces[0].x << endl;
-            imshow("Face detection", frame);
+            
             int c = waitKey(10);
             if ((char) c == 'c') {
                 break;
             }
+            imshow("Face detection", frame);
         }
     } else {
-        cout << "can't open vedio" << endl;
+        cout << "can't open video" << endl;
     }
 }
 
@@ -185,8 +225,9 @@ int main(int argc, const char *argv[]) {
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    recognition_call();
-    detection_call();
+    //recognition_call();
+    Mat x=detection_call();
+    //recognition_call(x);
     //tracking_call();
     return 0;
 }
