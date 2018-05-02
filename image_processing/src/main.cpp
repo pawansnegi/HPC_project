@@ -76,7 +76,7 @@ void recognition_call() {
 
     int height = images[0].rows;
 
-    Ptr<BasicFaceRecognizer> model = FisherFaceRecognizer::create(); //EigenFaceRecognizer::create();
+    Ptr<LBPHFaceRecognizer> model = LBPHFaceRecognizer::create(); //EigenFaceRecognizer::create();
     model->train(images, labels);
 
 
@@ -105,16 +105,27 @@ void recognition_call() {
                     resize(testSample, testSample, Size(112, 92), 0, 0);
                     testSample.convertTo(testSample, CV_8U);
 
-                    int predictedLabel = model->predict(testSample);
+                    int predictedLabel = -123 ; //model->predict(testSample);
+                    double confidence = 0 ;
+                    model->predict(testSample , predictedLabel , confidence) ;
 
-                    string result_message = format("Predicted class = %d ", predictedLabel);
+                    //cout << model->getThreshold() << endl ;
+                    //cout << model->getNumComponents() << endl ;
+                    string result_message = format("Predicted class = %d with "
+                            "confidence = %lf", predictedLabel , confidence);
                     cout << result_message << endl;
 
-                    if (predictedLabel == 0) {
-                        putText(frame, "Kartheek", Point(faces[i].x, faces[i].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+                    if (predictedLabel == 0 && confidence < 100) {
+                        putText(frame, "Kartheek", Point(faces[i].x, faces[i].y)
+                                , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
                     }
-                    if (predictedLabel == 1) {
-                        putText(frame, "Pawan", Point(faces[i].x, faces[i].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+                    else if (predictedLabel == 1 && confidence < 100) {
+                        putText(frame, "Pawan", Point(faces[i].x, faces[i].y)
+                                , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+                    }
+                    else{
+                        putText(frame, "Unknown", Point(faces[i].x, faces[i].y)
+                                , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 255), 2);
                     }
                 }
             }
