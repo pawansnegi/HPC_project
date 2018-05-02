@@ -155,6 +155,106 @@ void recognition_call() {
 
 }
 
+void recognition_call_ocl() {
+    // These vectors hold the images and corresponding labels.
+    vector<Mat> images;
+    vector<int> labels;
+    // Read in the data. This can fail if no valid
+    // input filename is given.
+    try {
+        recog::read_csv<Mat>("../data.csv", images, labels, ';');
+    } catch (cv::Exception& e) {
+        cerr << "Error opening file \"" << "../data.csv" << "\". Reason: " << e.msg << endl;
+        // nothing more we can do
+        exit(1);
+    }
+
+    if (images.size() <= 1) {
+        string error_message = "This demo needs at least 2 images to work. Please add more images to your data set!";
+        CV_Error(CV_StsError, error_message);
+    }
+
+    int height = images[0].rows;
+
+    Ptr<LBPHFaceRecognizer> model = LBPHFaceRecognizer::create(); //EigenFaceRecognizer::create();
+    model->train(images, labels);
+
+
+    VideoCapture cap(0);
+    UMat frame;
+
+    //-- 2. Read the video stream
+    std::vector<Rect> faces;
+    std::vector<UMat> cropdframes;
+    if (cap.isOpened()) {
+        while (true) {
+            cap >> frame;
+            UMat det_face;
+            faces.clear();
+            cropdframes.clear() ;
+            if (!frame.empty()) {
+                detect::detectAndDisplay<UMat>(frame, &faces, &cropdframes);
+            } else {
+                printf(" --(!) No captured frame -- Break!");
+                break;
+            }
+
+            for (int i = 0; i < cropdframes.size(); i++) {
+                UMat testSample = cropdframes[i];
+                if (!testSample.empty()) {
+                    resize(testSample, testSample, Size(112, 92), 0, 0);
+                    testSample.convertTo(testSample, CV_8U);
+
+                    int predictedLabel = -123 ; //model->predict(testSample);
+                    double confidence = 0 ;
+                    model->predict(testSample , predictedLabel , confidence) ;
+
+                    //cout << model->getThreshold() << endl ;
+                    //cout << model->getNumComponents() << endl ;
+                    string result_message = format("Predicted class = %d with "
+                            "confidence = %lf", predictedLabel , confidence);
+                    cout << result_message << endl;
+
+                    if (predictedLabel == 0 && confidence < 100) {
+                        putText(frame, "Kartheek", Point(faces[i].x, faces[i].y)
+                                , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+                    }
+                    else if (predictedLabel == 1 && confidence < 100) {
+                        putText(frame, "Pawan", Point(faces[i].x, faces[i].y)
+                                , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+                    }
+                    else{
+                        putText(frame, "Unknown", Point(faces[i].x, faces[i].y)
+                                , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 255), 2);
+                    }
+                }
+            }
+
+            imshow("Face detection", frame);
+
+            int c = waitKey(10);
+            if ((char) c == 'c') {
+                break;
+            }
+
+        }
+    }
+
+    //    for (int i = 0; i < images.size(); i++) {
+    //        images[i] = images[i].reshape(1, 1);
+    //    }
+    //
+    //    Mat mean = recog::calculate_mean(images);
+    //    //cout << mean.at<double>(112) << endl;
+    //    imshow("2mean", mean.reshape(1, height));
+    //    Mat diffmat = recog::create_variance_mat(images, mean);
+    //
+    //    Mat x;
+    //    waitKey(0);
+    //return predictedLabel;
+
+}
+
 /// Detection call for individual testing of face detection functions
 /// source https://docs.opencv.org/2.4/doc/tutorials/objdetect/cascade_classifier/cascade_classifier.html
 ///
@@ -333,7 +433,8 @@ int main(int argc, const char *argv[]) {
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    recognition_call();
+    //recognition_call();
+    recognition_call_ocl();
     //detection_call_ocl() ;
     //detection_call();
     //tracking_call();
