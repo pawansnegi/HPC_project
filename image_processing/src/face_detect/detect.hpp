@@ -60,7 +60,6 @@ extern "C" {
                 for (size_t i = 0; i < faces->size(); i++) {
                     (*faces)[i].x = 0;
                     (*faces)[i].y = 0;
-                    cout << "eye" << endl;
                 }
             } else {
                 face_cascade.detectMultiScale(orgframe, *faces, 1.1);
@@ -125,15 +124,15 @@ extern "C" {
 ///     cropped image
         
         template <class mattype>
-        mattype cropAndCreateRect(mattype frame, std::vector<Rect> *faces) {
-            mattype cropped;
+        void cropAndCreateRect(mattype frame, std::vector<Rect> *faces 
+                  , std::vector<mattype> *cropped) {
+            mattype crop;
             for (size_t i = 0; i < faces->size(); i++) {
-
-                crop_image(&cropped, frame, (*faces)[i].x, (*faces)[i].y, (*faces)[i].width, (*faces)[i].height);
+                
+                crop_image(&crop, frame, (*faces)[i].x, (*faces)[i].y, (*faces)[i].width, (*faces)[i].height);
                 create_rectangle((*faces)[i].x, (*faces)[i].y, (*faces)[i].width, (*faces)[i].height, frame);
-
+                cropped->push_back(crop) ;
             }
-            return cropped;
         }
 
 /// Detects face using a CascadeClassifier. calls of eye detection and make possible rotation
@@ -148,7 +147,8 @@ extern "C" {
 ///     cropped image
         
         template <class mattype>
-        mattype detectAndDisplay(mattype frame, std::vector<Rect> *faces) {
+        void detectAndDisplay(mattype frame, std::vector<Rect> *faces 
+             , std::vector<mattype> *cropped = NULL) {
 
             bool saveimage = false;
             cv::CascadeClassifier face_cascade;
@@ -161,7 +161,7 @@ extern "C" {
             }
 
             mattype frame_gray;
-            mattype cropped;
+            //mattype cropped;
             mattype newframe = frame;
             bool eye = false;
 
@@ -174,21 +174,30 @@ extern "C" {
             detectFace(face_cascade, newframe,
                     frame_gray, faces, eye);
 
-            cropped = cropAndCreateRect(frame, faces);
-            if (!cropped.empty())
-                cvtColor(cropped, cropped, CV_BGR2GRAY);
-
-            if (saveimage == true) {
-
-                if (cropped.empty() == 0) {
-                    std::ostringstream oss;
-                    oss << "aarif" << rand() % (1 + 100) << ".jpg";
-                    std::string var = oss.str();
-                    imwrite(var.c_str(), cropped);
+            cropAndCreateRect(frame, faces , cropped);
+            for (int i = 0 ; i < cropped->size() ; i++){
+                mattype crop = (*cropped)[i];
+                if (!crop.empty()){
+                    cvtColor(crop, crop, CV_BGR2GRAY);
+                    (*cropped)[i] = crop ;
                 }
             }
+//            for (size_t i = 0 , i < cropped->size(); i++){
+//                mattype crop = (*cropped)[i];
+////                if (!cropped[i].empty())
+////                cvtColor((*cropped)[i], (*cropped)[i], CV_BGR2GRAY);
+//            }
 
-            return cropped;
+//            if (saveimage == true) {
+//
+//                if (cropped[0]->empty() == 0) {
+//                    std::ostringstream oss;
+//                    oss << "aarif" << rand() % (1 + 100) << ".jpg";
+//                    std::string var = oss.str();
+//                    imwrite(var.c_str(), cropped);
+//                }
+//            }
+
         }
 
 /// Detect the eye in the frame and create a rotation matrix for the frame
