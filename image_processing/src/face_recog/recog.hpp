@@ -1,5 +1,10 @@
-// %HISTORY%
-// March 25 2018 - Pawan Negi - Code initilize
+/// @file recog.hpp
+/// face recognition functions
+///
+/// @version 0.1
+/// @author Pawan Negi <pawan2713@gmail.com>
+///
+/// &copy;2018-2019 pawannegi. All rights reserved.
 
 #ifndef _RECOG_H
 #define _RECOG_H
@@ -28,7 +33,24 @@ using namespace face;
    #endif
 
    namespace recog{
-       
+
+/// Detects face using a CascadeClassifier. Two frame are given as an input
+/// depending upon whether the face is rotated or not the CascadeClassifier is
+/// on the respective frame.
+///
+/// @param[in] face_cascade
+///     CascadeClassifier which can detect a face in a frame.
+/// @param[in] rotatedframe
+///     rotated frame if there is some rotation in the frame
+/// @param[in] orgframe
+///     original frame without the rotation.
+/// @param[out] faces
+///     all the detected faces bounding boxes.       
+/// @param[in] isrotated
+///     is rotation is done or not.
+///
+/// @return
+///     void
        template <class mattype>
        mattype calculate_mean(std::vector<mattype> images) {
         
@@ -57,9 +79,23 @@ using namespace face;
     }
 
 
-    //description
-    //
-
+/// Detects face using a CascadeClassifier. Two frame are given as an input
+/// depending upon whether the face is rotated or not the CascadeClassifier is
+/// on the respective frame.
+///
+/// @param[in] face_cascade
+///     CascadeClassifier which can detect a face in a frame.
+/// @param[in] rotatedframe
+///     rotated frame if there is some rotation in the frame
+/// @param[in] orgframe
+///     original frame without the rotation.
+/// @param[out] faces
+///     all the detected faces bounding boxes.       
+/// @param[in] isrotated
+///     is rotation is done or not.
+///
+/// @return
+///     void
     template <class mattype>
     mattype create_variance_mat(std::vector<mattype> images, mattype mean) {
         //Mat myvariance = images[0]*0.0;
@@ -76,8 +112,23 @@ using namespace face;
 
     }
 
-    //description
-    //
+/// Detects face using a CascadeClassifier. Two frame are given as an input
+/// depending upon whether the face is rotated or not the CascadeClassifier is
+/// on the respective frame.
+///
+/// @param[in] face_cascade
+///     CascadeClassifier which can detect a face in a frame.
+/// @param[in] rotatedframe
+///     rotated frame if there is some rotation in the frame
+/// @param[in] orgframe
+///     original frame without the rotation.
+/// @param[out] faces
+///     all the detected faces bounding boxes.       
+/// @param[in] isrotated
+///     is rotation is done or not.
+///
+/// @return
+///     void
     template <class mattype>
     mattype calculate_eigen(mattype cov_matrix) {
 
@@ -86,26 +137,69 @@ using namespace face;
     }
 
 
-    //description
-    //
+/// Detects face using a CascadeClassifier. Two frame are given as an input
+/// depending upon whether the face is rotated or not the CascadeClassifier is
+/// on the respective frame.
+///
+/// @param[in] face_cascade
+///     CascadeClassifier which can detect a face in a frame.
+/// @param[in] rotatedframe
+///     rotated frame if there is some rotation in the frame
+/// @param[in] orgframe
+///     original frame without the rotation.
+/// @param[out] faces
+///     all the detected faces bounding boxes.       
+/// @param[in] isrotated
+///     is rotation is done or not.
+///
+/// @return
+///     void
     template <class mattype>
     mattype get_pricncipal_comp(mattype eigenvec, mattype eigenval) {
         return eigenvec;
 
     }
 
-    //description
-    //
-
+/// Detects face using a CascadeClassifier. Two frame are given as an input
+/// depending upon whether the face is rotated or not the CascadeClassifier is
+/// on the respective frame.
+///
+/// @param[in] face_cascade
+///     CascadeClassifier which can detect a face in a frame.
+/// @param[in] rotatedframe
+///     rotated frame if there is some rotation in the frame
+/// @param[in] orgframe
+///     original frame without the rotation.
+/// @param[out] faces
+///     all the detected faces bounding boxes.       
+/// @param[in] isrotated
+///     is rotation is done or not.
+///
+/// @return
+///     void
     template <class mattype>
     int recognize(mattype PC, mattype inputimage) {
         return 0;
 
     }
 
-    //description
-    //
-
+/// Detects face using a CascadeClassifier. Two frame are given as an input
+/// depending upon whether the face is rotated or not the CascadeClassifier is
+/// on the respective frame.
+///
+/// @param[in] face_cascade
+///     CascadeClassifier which can detect a face in a frame.
+/// @param[in] rotatedframe
+///     rotated frame if there is some rotation in the frame
+/// @param[in] orgframe
+///     original frame without the rotation.
+/// @param[out] faces
+///     all the detected faces bounding boxes.       
+/// @param[in] isrotated
+///     is rotation is done or not.
+///
+/// @return
+///     void
     template <class mattype>
     int inbuilt_recognition(std::vector<mattype> images ,vector<int> labels , mattype inputimage) {
         Ptr<BasicFaceRecognizer> model1 = FisherFaceRecognizer::create();
@@ -175,7 +269,24 @@ using namespace face;
         return predictedLabel;
 
     }
-
+    
+/// Detects face using a CascadeClassifier. Two frame are given as an input
+/// depending upon whether the face is rotated or not the CascadeClassifier is
+/// on the respective frame.
+///
+/// @param[in] face_cascade
+///     CascadeClassifier which can detect a face in a frame.
+/// @param[in] rotatedframe
+///     rotated frame if there is some rotation in the frame
+/// @param[in] orgframe
+///     original frame without the rotation.
+/// @param[out] faces
+///     all the detected faces bounding boxes.       
+/// @param[in] isrotated
+///     is rotation is done or not.
+///
+/// @return
+///     void
     template <class mattype>
     mattype norm_0_255(InputArray _src) {
         mattype src = _src.getMat();
@@ -195,6 +306,23 @@ using namespace face;
         return dst;
     }
 
+/// Detects face using a CascadeClassifier. Two frame are given as an input
+/// depending upon whether the face is rotated or not the CascadeClassifier is
+/// on the respective frame.
+///
+/// @param[in] face_cascade
+///     CascadeClassifier which can detect a face in a frame.
+/// @param[in] rotatedframe
+///     rotated frame if there is some rotation in the frame
+/// @param[in] orgframe
+///     original frame without the rotation.
+/// @param[out] faces
+///     all the detected faces bounding boxes.       
+/// @param[in] isrotated
+///     is rotation is done or not.
+///
+/// @return
+///     void
     template <class mattype>
     void read_csv(const string& filename, vector<mattype>& images, vector<int>& labels, char separator ) {
         std::ifstream file(filename.c_str(), ifstream::in);

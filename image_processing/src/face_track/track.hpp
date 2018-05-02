@@ -1,5 +1,10 @@
-// %HISTORY%
-// March 25 2018 - Pawan Negi - Code initilize
+/// @file track.hpp
+/// face tracking functions
+///
+/// @version 0.1
+/// @author Pawan Negi <pawan2713@gmail.com>
+///
+/// &copy;2018-2019 pawannegi. All rights reserved.
 
 #ifndef _TRACK_H
 #define _TRACK_H
@@ -29,10 +34,21 @@ using namespace cv;
    #endif
 
    namespace track{
-       //fucntion description
+/// for the two rectangles calculate the delta in dimensions
+///
+/// @param[in] frame1
+///     bounding box for first frame
+/// @param[in] frame2
+///     bounding box for second frame
+///
+/// @return
+///     true/false
        bool isLargeDeltaInFrames(Rect frame1, Rect frame2);
 
-       //fucntiom description
+/// Detects whether the box is at corner of the frame
+///
+/// @return
+///     void
        bool isBoxAtCorner(Rect frame1 , int rows , int cols);
 
    }

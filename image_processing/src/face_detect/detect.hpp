@@ -1,5 +1,10 @@
-// %HISTORY%
-// March 25 2018 - Pawan Negi - Code initilize
+/// @file detect.hpp
+/// face detection functions
+///
+/// @version 0.1
+/// @author Pawan Negi <pawan2713@gmail.com>
+///
+/// &copy;2018-2019 pawannegi. All rights reserved.
 
 #ifndef _DETECT_H
 #define _DETECT_H
@@ -27,6 +32,24 @@ extern "C" {
 #endif
 
     namespace detect {
+        
+/// Detects face using a CascadeClassifier. Two frame are given as an input
+/// depending upon whether the face is rotated or not the CascadeClassifier is
+/// on the respective frame.
+///
+/// @param[in] face_cascade
+///     CascadeClassifier which can detect a face in a frame.
+/// @param[in] rotatedframe
+///     rotated frame if there is some rotation in the frame
+/// @param[in] orgframe
+///     original frame without the rotation.
+/// @param[out] faces
+///     all the detected faces bounding boxes.       
+/// @param[in] isrotated
+///     is rotation is done or not.
+///
+/// @return
+///     void
 
         template <class mattype>
         void detectFace(cv::CascadeClassifier face_cascade, mattype rotatedframe,
@@ -44,7 +67,21 @@ extern "C" {
             }
         }
 
-        /*description*/
+/// Creates rectangles using the face bounding boxes properties
+///
+/// @param[in] facex
+///     x coordinate of the box
+/// @param[in] facey
+///     y coordinate of the box
+/// @param[in] w
+///     width of box
+/// @param[out] h
+///     height of box       
+/// @param[in] frame
+///     frame on which rectangle to be made
+///
+/// @return
+///     void
         template <class mattype>
         void create_rectangle(int facex, int facey, int w, int h, mattype frame) {
 
@@ -54,13 +91,39 @@ extern "C" {
 
         }
 
-        /*description*/
+/// crops the frame using the bounding box properties
+///
+/// @param[out] out
+///     cropped output frame
+/// @param[in] frame
+///     frame to be cropped
+/// @param[in] facex
+///     x coordinate of the box
+/// @param[in] facey
+///     y coordinate of the box
+/// @param[in] w
+///     width of box
+/// @param[out] h
+///     height of box 
+///
+/// @return
+///     void
         template <class mattype>
         void crop_image(mattype *out, mattype frame, int facex, int facey, int w, int h) {
             cv::Rect myROI(facex, facey, w, h);
             *out = frame(myROI);
         }
 
+/// function calling crop_image and create_rectangle
+///
+/// @param[in] frame
+///     original image frame
+/// @param[in] faces
+///     faces bounding  box vectors
+///
+/// @return
+///     cropped image
+        
         template <class mattype>
         mattype cropAndCreateRect(mattype frame, std::vector<Rect> *faces) {
             mattype cropped;
@@ -73,7 +136,17 @@ extern "C" {
             return cropped;
         }
 
-        /*description*/
+/// Detects face using a CascadeClassifier. calls of eye detection and make possible rotation
+/// and detect the face using detectFace
+///
+/// @param[in] frame
+///     original image frame
+/// @param[out] faces
+///     faces bounding  box vectors
+///
+/// @return
+///     cropped image
+        
         template <class mattype>
         mattype detectAndDisplay(mattype frame, std::vector<Rect> *faces) {
 
@@ -109,7 +182,7 @@ extern "C" {
 
                 if (cropped.empty() == 0) {
                     std::ostringstream oss;
-                    oss << "karhteek" << rand() % (1 + 100) << ".jpg";
+                    oss << "aarif" << rand() % (1 + 100) << ".jpg";
                     std::string var = oss.str();
                     imwrite(var.c_str(), cropped);
                 }
@@ -118,6 +191,14 @@ extern "C" {
             return cropped;
         }
 
+/// Detect the eye in the frame and create a rotation matrix for the frame
+///
+/// @param[in] frame
+///     original frame on which face and eyes are visible
+///
+/// @return
+///     rotation matrix
+        
         template <class mattype>
         Mat getRotationMat(mattype frame) {
 
@@ -156,6 +237,17 @@ extern "C" {
             return tranmat;
         }
 
+/// Takes the rotation matrix and rotates the frame if necessary
+/// if rotation is nor required returns false.
+///
+/// @param[in] frame
+///     original frame on which face and eyes are visible
+/// @param[out] newframe
+///     rotated frame out
+///
+/// @return
+///     true/false
+        
         template <class mattype>
         bool getRotatedFrame(mattype frame, mattype *newframe) {
 
