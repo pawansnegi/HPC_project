@@ -150,7 +150,6 @@ extern "C" {
         void detectAndDisplay(mattype frame, std::vector<Rect> *faces 
              , std::vector<mattype> *cropped = NULL) {
 
-            bool saveimage = false;
             cv::CascadeClassifier face_cascade;
 
             String face_cascade_name = "/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_alt.xml";
@@ -182,21 +181,6 @@ extern "C" {
                     (*cropped)[i] = crop ;
                 }
             }
-//            for (size_t i = 0 , i < cropped->size(); i++){
-//                mattype crop = (*cropped)[i];
-////                if (!cropped[i].empty())
-////                cvtColor((*cropped)[i], (*cropped)[i], CV_BGR2GRAY);
-//            }
-
-//            if (saveimage == true) {
-//
-//                if (cropped[0]->empty() == 0) {
-//                    std::ostringstream oss;
-//                    oss << "aarif" << rand() % (1 + 100) << ".jpg";
-//                    std::string var = oss.str();
-//                    imwrite(var.c_str(), cropped);
-//                }
-//            }
 
         }
 

@@ -84,6 +84,9 @@ void recognition_call() {
     Mat frame;
 
     //-- 2. Read the video stream
+    cv::getTickCount() ;
+    int64  e1 , e2 ; 
+            
     std::vector<Rect> faces;
     std::vector<Mat> cropdframes;
     if (cap.isOpened()) {
@@ -92,6 +95,9 @@ void recognition_call() {
             Mat det_face;
             faces.clear();
             cropdframes.clear() ;
+            
+            e1 = cv::getTickCount();
+            
             if (!frame.empty()) {
                 detect::detectAndDisplay<Mat>(frame, &faces, &cropdframes);
             } else {
@@ -109,11 +115,9 @@ void recognition_call() {
                     double confidence = 0 ;
                     model->predict(testSample , predictedLabel , confidence) ;
 
-                    //cout << model->getThreshold() << endl ;
-                    //cout << model->getNumComponents() << endl ;
-                    string result_message = format("Predicted class = %d with "
-                            "confidence = %lf", predictedLabel , confidence);
-                    cout << result_message << endl;
+//                    string result_message = format("Predicted class = %d with "
+//                            "confidence = %lf", predictedLabel , confidence);
+                    //cout << result_message << endl;
 
                     if (predictedLabel == 0 && confidence < 100) {
                         putText(frame, "Kartheek", Point(faces[i].x, faces[i].y)
@@ -123,6 +127,10 @@ void recognition_call() {
                         putText(frame, "Pawan", Point(faces[i].x, faces[i].y)
                                 , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
                     }
+                    else if (predictedLabel == 2 && confidence < 100) {
+                        putText(frame, "Aarif", Point(faces[i].x, faces[i].y)
+                                , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+                    }
                     else{
                         putText(frame, "Unknown", Point(faces[i].x, faces[i].y)
                                 , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0, 0, 255), 2);
@@ -130,8 +138,17 @@ void recognition_call() {
                 }
             }
 
+            e2 = cv::getTickCount();
+            
+//            std::ostringstream oss;
+//            oss << "faces" << rand() % (1 + 100) << ".jpg";
+//            std::string var = oss.str();
+//            imwrite(var.c_str(), frame);
+            
             imshow("Face detection", frame);
 
+            cout << "time " << (e2 - e1)/ cv::getTickFrequency() << 
+                    "    numberoffaces " << cropdframes.size() << endl ;
             int c = waitKey(10);
             if ((char) c == 'c') {
                 break;
@@ -139,19 +156,6 @@ void recognition_call() {
 
         }
     }
-
-    //    for (int i = 0; i < images.size(); i++) {
-    //        images[i] = images[i].reshape(1, 1);
-    //    }
-    //
-    //    Mat mean = recog::calculate_mean(images);
-    //    //cout << mean.at<double>(112) << endl;
-    //    imshow("2mean", mean.reshape(1, height));
-    //    Mat diffmat = recog::create_variance_mat(images, mean);
-    //
-    //    Mat x;
-    //    waitKey(0);
-    //return predictedLabel;
 
 }
 
@@ -183,6 +187,8 @@ void recognition_call_ocl() {
     VideoCapture cap(0);
     UMat frame;
 
+    int64  e1 , e2 ; 
+    
     //-- 2. Read the video stream
     std::vector<Rect> faces;
     std::vector<UMat> cropdframes;
@@ -192,6 +198,9 @@ void recognition_call_ocl() {
             UMat det_face;
             faces.clear();
             cropdframes.clear() ;
+            
+            e1 = cv::getTickCount();
+            
             if (!frame.empty()) {
                 detect::detectAndDisplay<UMat>(frame, &faces, &cropdframes);
             } else {
@@ -209,18 +218,20 @@ void recognition_call_ocl() {
                     double confidence = 0 ;
                     model->predict(testSample , predictedLabel , confidence) ;
 
-                    //cout << model->getThreshold() << endl ;
-                    //cout << model->getNumComponents() << endl ;
-                    string result_message = format("Predicted class = %d with "
-                            "confidence = %lf", predictedLabel , confidence);
-                    cout << result_message << endl;
+//                    string result_message = format("Predicted class = %d with "
+//                            "confidence = %lf", predictedLabel , confidence);
+                    //cout << result_message << endl;
 
-                    if (predictedLabel == 0 && confidence < 100) {
+                    if (predictedLabel == 0 && confidence < 70) {
                         putText(frame, "Kartheek", Point(faces[i].x, faces[i].y)
                                 , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
                     }
-                    else if (predictedLabel == 1 && confidence < 100) {
+                    else if (predictedLabel == 1 && confidence < 70) {
                         putText(frame, "Pawan", Point(faces[i].x, faces[i].y)
+                                , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+                    }
+                    else if (predictedLabel == 2 && confidence < 70) {
+                        putText(frame, "Aarif", Point(faces[i].x, faces[i].y)
                                 , FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
                     }
                     else{
@@ -230,8 +241,18 @@ void recognition_call_ocl() {
                 }
             }
 
+            e2 = cv::getTickCount();
+            
+//            std::ostringstream oss;
+//            oss << "faces" << rand() % (1 + 100) << ".jpg";
+//            std::string var = oss.str();
+//            imwrite(var.c_str(), frame);
+            
             imshow("Face detection", frame);
 
+            cout << "time " << (e2 - e1)/ cv::getTickFrequency() << 
+                    "    numberoffaces " << cropdframes.size() << endl ;
+            
             int c = waitKey(10);
             if ((char) c == 'c') {
                 break;
@@ -239,19 +260,6 @@ void recognition_call_ocl() {
 
         }
     }
-
-    //    for (int i = 0; i < images.size(); i++) {
-    //        images[i] = images[i].reshape(1, 1);
-    //    }
-    //
-    //    Mat mean = recog::calculate_mean(images);
-    //    //cout << mean.at<double>(112) << endl;
-    //    imshow("2mean", mean.reshape(1, height));
-    //    Mat diffmat = recog::create_variance_mat(images, mean);
-    //
-    //    Mat x;
-    //    waitKey(0);
-    //return predictedLabel;
 
 }
 
@@ -268,13 +276,18 @@ void detection_call() {
 
     //-- 2. Read the video stream
     std::vector<Rect> faces;
+    std::vector<Mat> cropdframes;
+
+    bool saveimage = true;
     if (cap.isOpened()) {
         while (true) {
+
             cap >> frame;
-            Mat x;
+            faces.clear();
+            cropdframes.clear();
             //-- 3. Apply the classifier to the frame
             if (!frame.empty()) {
-                detect::detectAndDisplay<Mat>(frame, &faces);
+                detect::detectAndDisplay<Mat>(frame, &faces, &cropdframes);
             } else {
                 printf(" --(!) No captured frame -- Break!");
                 break;
@@ -285,6 +298,18 @@ void detection_call() {
             int c = waitKey(1);
             if ((char) c == 'c') {
                 break;
+            }
+
+
+            if (saveimage == true) {
+
+                if (!cropdframes.empty())
+                if (!cropdframes[0].empty()) {
+                    std::ostringstream oss;
+                    oss << "kartheek" << rand() % (1 + 100) << ".jpg";
+                    std::string var = oss.str();
+                    imwrite(var.c_str(), cropdframes[0]);
+                }
             }
 
         }
@@ -303,12 +328,16 @@ void detection_call_ocl() {
     Mat frame2;
 
     std::vector<Rect> faces;
+    std::vector<UMat> cropdframes;
     if (cap.isOpened()) {
         while (true) {
             cap.read(frame);
 
+            faces.clear();
+            cropdframes.clear() ;
+            
             if (!frame.empty()) {
-                detect::detectAndDisplay<UMat>(frame, &faces);
+                detect::detectAndDisplay<UMat>(frame, &faces , &cropdframes);
             } else {
                 printf(" --(!) No captured frame -- Break!");
                 break;
@@ -353,58 +382,52 @@ void tracking_call() {
         detect::detectAndDisplay<Mat>(frame, &faces);
 
         while (true) {
-            //            detectagain++;
+            detectagain++;
             video >> frame;
             faces.erase(faces.begin(), faces.end());
             //
             cout << track::isLargeDeltaInFrames(bbox, faces[0]) << endl;
-            //            if ((detect && !track::isLargeDeltaInFrames(bbox , faces[0])) || 
-            //                    ( wait < 5)) {
-            //                tracker->clear();
-            //                bbox.x = faces[0].x;
-            //                bbox.y = faces[0].y;
-            //                bbox.height = faces[0].height;
-            //                bbox.width = faces[0].width;
-            //
-            //                tracker = TrackerMedianFlow::create();
-            //                tracker->init(frame, bbox);
-            //                detect = false;
-            //                wait++ ;
-            //            }else{
-            //                trackfail = true ;
-            //            }
-            ////            else{
-            ////                tracker->clear();
-            ////                tracker = TrackerMedianFlow::create();
-            ////                tracker->init(frame, bbox);
-            ////                tracker->update(frame, bbox);
-            ////            }
-            //            
-            //            tracker->update(frame, bbox);
-            //            cout << "updating = " << bbox.x << " " << bbox.y << " "
-            //                    << " " << detect << " " << bbox.width << endl;
-            //            if (trackfail || track::isBoxAtCorner(bbox , frame.rows , frame.cols)) {
-            detect::detectAndDisplay<Mat>(frame, &faces);
+            if ((detect && !track::isLargeDeltaInFrames(bbox, faces[0])) ||
+                    (wait < 5)) {
+                tracker->clear();
+                bbox.x = faces[0].x;
+                bbox.y = faces[0].y;
+                bbox.height = faces[0].height;
+                bbox.width = faces[0].width;
+                tracker = TrackerMedianFlow::create();
+                tracker->init(frame, bbox);
+                detect = false;
+                wait++;
+            } else {
+                tracker->clear();
+                tracker = TrackerMedianFlow::create();
+                tracker->init(frame, bbox);
+                tracker->update(frame, bbox);
+            }
 
-            stringstream ss;
-            ss << faces[0].x << " " << faces[0].width;
-            string abc = ss.str();
+            tracker->update(frame, bbox);
+            cout << "updating = " << bbox.x << " " << bbox.y << " "
+                    << " " << detect << " " << bbox.width << endl;
+            if (trackfail || track::isBoxAtCorner(bbox, frame.rows, frame.cols)) {
+                detect::detectAndDisplay<Mat>(frame, &faces);
 
-            putText(frame, abc.c_str(), Point(faces[0].x + 50, faces[0].y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
-            //                detectagain = 0;
-            //                detect = true;
-            //                trackfail = false ;
-            //            } else {
-            //                putText(frame, "tracked", Point(bbox.x + 50, bbox.y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(256, 0, 0), 2);
-            //                rectangle(frame, bbox, Scalar(255, 0, 0), 2, 1);
-            //                //printf(" --(!) No captured frame -- Break!");
-            //                //break;
-            //            }
-            //
+                stringstream ss;
+                ss << faces[0].x << " " << faces[0].width;
+                string abc = ss.str();
+
+                putText(frame, abc.c_str(), Point(faces[0].x + 50, faces[0].y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
+                detectagain = 0;
+                detect = true;
+                trackfail = false;
+            } else {
+                putText(frame, "tracked", Point(bbox.x + 50, bbox.y + 50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(256, 0, 0), 2);
+                rectangle(frame, bbox, Scalar(255, 0, 0), 2, 1);
+            }
+
 
             putText(frame, "Pawan", Point((faces)[0].x, (faces)[0].y), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50, 170, 50), 2);
             cout << faces[0].x << endl;
-            //            imshow("Face detection", frame);
+            imshow("Face detection", frame);
             int c = waitKey(10);
             if ((char) c == 'c') {
                 break;
@@ -419,25 +442,21 @@ void tracking_call() {
 /// @return
 ///     exit number
 
-int main(int argc, const char *argv[]) {
-    // Check for valid command line arguments, print usage
-    // if no arguments were given.
+int main(int argc, char* argv[]) {
 
-    MPI_Init(NULL, NULL);
-
-    // Get the number of processes
-    int world_size;
-    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-
-    // Get the rank of the process
-    int world_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
-    //recognition_call();
-    recognition_call_ocl();
-    //detection_call_ocl() ;
-    //detection_call();
-    //tracking_call();
+    if (argc == 2){
+        if (*argv[1]== '1'){
+            recognition_call();
+        }else if (*argv[1]== '2'){
+            recognition_call_ocl();
+        }else{
+            cout << "./img_procsr <1> for serial call \n "
+                    "./img_procsr <2> for opencl call" << endl ;
+        }
+    }else{
+            cout << "./img_procsr <1> for serial call \n "
+                    "./img_procsr <2> for opencl call" << endl ;
+    }
 
     //    cv::ocl::Context context;
     //    std::vector<cv::ocl::PlatformInfo> platforms;
