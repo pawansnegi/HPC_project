@@ -1,0 +1,11 @@
+digraph "src/face_recog" {
+  compound=true
+  node [ fontsize="10", fontname="Helvetica"];
+  edge [ labelfontsize="10", labelfontname="Helvetica"];
+  subgraph clusterdir_68267d1309a1af8e8297ef4c3efbcdba {
+    graph [ bgcolor="#ddddee", pencolor="black", label="src" fontname="Helvetica", fontsize="10", URL="dir_68267d1309a1af8e8297ef4c3efbcdba.html"]
+  dir_090582738180e3eccc3eca1f0e0ef9a5 [shape=box, label="face_recog", style="filled", fillcolor="#eeeeff", pencolor="black", URL="dir_090582738180e3eccc3eca1f0e0ef9a5.html"];
+  }
+  dir_e7988bd2c3e692429a3da42e3b939d43 [shape=box label="face_detect" URL="dir_e7988bd2c3e692429a3da42e3b939d43.html"];
+  dir_090582738180e3eccc3eca1f0e0ef9a5->dir_e7988bd2c3e692429a3da42e3b939d43 [headlabel="1", labeldistance=1.5 headhref="dir_000002_000001.html"];
+}

@@ -1,0 +1,12 @@
+digraph "detect::create_rectangle"
+{
+ // INTERACTIVE_SVG=YES
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="detect::create_rectangle",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="detect::cropAndCreateRect",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$namespacedetect.html#a5f817f415f95cc4403e0a76129d071c7"];
+  Node2 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="detect::detectAndDisplay",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$namespacedetect.html#a1663b7ee3cbd3d3383c3dc6fccca62db"];
+}
