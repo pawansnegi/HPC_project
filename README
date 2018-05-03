@@ -1,10 +1,20 @@
 To compile the code
 
-1) Make sure your PC have MPI and OPENCV installed
-2) cd to build directory
-3) type "cmake ../"
-4) type "make"
-5) run "./img_procsr 1.jpg"
-6) press enter on the pics to proceed
+1) Make sure your PC and OPENCV 3.4.1 installed
+
+2) change to image_processing folder
+
+		cd image_processing
+
+3) make a bulid directory
+		
+		 mkdir bulid
+
+4) change to build directory and execute "cmake ../"
+5) ecute "make"
+6) run "./img_procsr 1" for serial processing
+7) or run "./img_procsr 2" for opencl processing
+8) "ctrl+c" for ending the process
+
 
 
