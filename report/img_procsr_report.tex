@@ -539,7 +539,7 @@ The video input was 14.5 fps thus we needed to have a speed of detection and rec
 If a frame is declared as UMat OpenCV automatically do all the operations in a available GPU. There are some exceptions like imread and imshow function which do not recognize UMat, their we have made necessary conversion from UMat to Mat. The parallel implementation helps us to detect and recognize multiple faces with some speedup. The multiple face output is shown in the Figure \ref{mul}. We compared the results from the serial code and the parallel code as shown in the Figure \ref{plot}
 \begin{figure}[h!]
 	\centering
-	\includegraphics[scale=0.3]{./images/plot.pdf}
+	\includegraphics[scale=0.6]{./images/plot.pdf}
 	\caption{Detected face vs time}
 	\label{plot}
 \end{figure}
