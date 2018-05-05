@@ -287,6 +287,17 @@
 % http://www.ctan.org/pkg/dblfloatfix
 
 
+\usepackage{natbib}
+\usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+
+\tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm,text centered, draw=black, fill=red!30]
+\tikzstyle{io} = [trapezium, trapezium left angle=70, trapezium right angle=110, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=blue!30]
+\tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=orange!30]
+\tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=green!30]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
 
 
 % *** PDF, URL AND HYPERLINK PACKAGES ***
@@ -320,28 +331,29 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{Bare Demo of IEEEtran.cls\\ for IEEE Conferences}
+\title{Face Detection, Recognition and Tracking}
 
 
 % author names and affiliations
 % use a multiple column layout for up to three different
 % affiliations
-\author{\IEEEauthorblockN{Michael Shell}
-\IEEEauthorblockA{School of Electrical and\\Computer Engineering\\
-Georgia Institute of Technology\\
-Atlanta, Georgia 30332--0250\\
-Email: http://www.michaelshell.org/contact.html}
+\author{\IEEEauthorblockN{Pawan Singh Negi}
+\IEEEauthorblockA{Department of\\Aerospace Engineering\\
+Indian Institute of Technology\\
+Powai, Bombay 400076\\
+Email: pawan2713@gmail.com}
 \and
-\IEEEauthorblockN{Homer Simpson}
-\IEEEauthorblockA{Twentieth Century Fox\\
-Springfield, USA\\
-Email: homer@thesimpsons.com}
+\IEEEauthorblockN{Aarif Shaikh}
+\IEEEauthorblockA{Department of\\ XXX Engineering\\
+Indian Institute of Technology\\
+Powai, Bombay 400076\\
+Email: aarifsk1618@gmail.com}
 \and
-\IEEEauthorblockN{James Kirk\\ and Montgomery Scott}
-\IEEEauthorblockA{Starfleet Academy\\
-San Francisco, California 96678--2391\\
-Telephone: (800) 555--1212\\
-Fax: (888) 555--1212}}
+\IEEEauthorblockN{M kartheek}
+\IEEEauthorblockA{Department of\\ Mechanical Engineering\\
+Indian Institute of Technology\\
+Powai, Bombay 400076\\
+Email: kartheek.minnikanti@iitb.ac.in}}
 
 % conference papers do not typically use \thanks and this command
 % is locked out in conference mode. If really needed, such as for
@@ -380,7 +392,7 @@ Fax: (888) 555--1212}}
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-The abstract goes here.
+The goal of this paper is to implement face recognition in real time using a parallel programming approach. Recently, there has been a lot of interest in this topic due to recent technological advancements which heavily rely on computer vision such as self-driving cars or autonomous quadcopters. Another area which has face recognition at the heart of it is law enforcement. However, scaling it to a crowd of faces in real time is a challenge because of the amount of constantly changing data to be processed. Moreover, algorithms are getting inherently complex, demanding a significant performance overhead. Thus, taking a parallel approach would provide a significant speedup and thus would help improve the performance of inherently complex face recognition algorithms.
 \end{abstract}
 
 % no keywords
@@ -401,24 +413,136 @@ The abstract goes here.
 
 
 \section{Introduction}
-% no \IEEEPARstart
-This demo file is intended to serve as a ``starter file''
-for IEEE conference papers produced under \LaTeX\ using
-IEEEtran.cls version 1.8b and later.
-% You must have at least 2 lines in the paragraph with the drop letter
-% (should never be an issue)
-I wish you the best of success.
+Face detection, recognition and tracking are one of the most researched topic in computer vision. In this report we have used openCV, a open-source software for computer vision to perform detection, recognition and tracking. OpenCV provides various different algorithms for detection, recognition and tracking. Instead of having all the algorithms in one library one have to work to connect detection to recognition to tracking an object. In this program, we started by writing a serial code which includes making database to recognize all the team members. In the second phase we parallelized the program using inbuilt functions enabling it to use the GPU in the machine. The report consists of the overall flow in the program, detection algorithms, recognition algorithms, tracking attempts and results. In a separate section we discussed some more software we used to enable team work and presentableness of the code.
 
-\hfill mds
- 
-\hfill August 26, 2015
+\section{Overall flow}
+\begin{figure}[h!]
+	\centering
+	\resizebox{9cm}{4cm}{
+	\begin{tikzpicture}[node distance=2cm]
+	
+	\node (start) [startstop] {Video};
+	\node (frame) [io, below of=start] {Frame};
+	\node (detect) [process, right of=frame, xshift=2cm] {Detect face};
+	\node (recognize) [process, right of=detect, xshift=2cm] {Recognize face};
+	\node (outframe) [io, below of=recognize , yshift=-1cm] {Output frame};
+	
+	\draw [arrow] (start) -- (frame);
+	\draw [arrow] (frame) -- (detect);
+	\draw [arrow] (detect) -- (recognize);
+	\draw [arrow] (detect) -- node[anchor=east , xshift=-0.5cm] {Add Rectangle} (outframe);
+	\draw [arrow] (recognize) -- node[anchor=west] {Add Name} (outframe);
+	
+	\end{tikzpicture}
+}
+	\caption{Flowchart}
+	\label{flow}
+\end{figure}
+In the Figure \ref{flow}, the vedio is the starting point. One frame is taken at a time. Detection of face is performed, it is possible to have multiple faces. Detection gives cropped faces to the recognition block. In the recognition block, using a database it tries to recognize the face. If a match is found, it returns a label which in turn give name to the face. Detect face provides a frame to the. Thus the output frame contains the face name and a box around it.
 
-\subsection{Subsection Heading Here}
-Subsection text here.
+\section{Algorithms in OpenCV}
+OpenCV provides various algorithms for detection, recognition and tracking. We studied and compared all of them. Depending upon the speed and accuracy we chosed one of them.
 
+\subsection{Detection Algorithms}
 
-\subsubsection{Subsubsection Heading Here}
-Subsubsection text here.
+\subsubsection{Viola Jones Face detection algorithm}
+\begin{itemize}
+	\item It was the first framework to provide competitive object detection rates in real time \cite{facedet}. 
+	\item It was proposed in 2001 and was found to present high accuracy compared to existing algorithms.
+	\item It was found to be suitable for real time detection as it had low latency.
+	\item A cascade of classifiers can be built upon it which would minimize computation time and improve face detection accuracy
+	\item Long training time
+	\item Limited head poses
+	\item Does not detect black faces
+\end{itemize}
+
+\subsubsection{Local Binary Pattern}
+\begin{itemize}
+	\item Local Binary Pattern was found to be Extremely effective in describing image texture features and has its uses in texture analysis, image retrievals, face recognition and image segmentation. 
+	\item It tracks the movement of an object by using background subtraction. It is computationally simple and easy to implement. 
+	\item It is tolerant to illumination changes
+	\item Using large local regions increases errors
+	\item Not accurate
+	\item Suitable only for binary and grayscale images
+	
+\end{itemize}
+
+\subsubsection{AdaBoost Algorithm}
+\begin{itemize}
+	\item Sensitive to noisy data, hence returns a suboptimal solution
+	\item Adaptive, one weak classifier added in each iteration
+	\item Not prone to over-fitting
+	\item Simple implementation
+	\item Result heavily dependent on quality of training data in terms of interclass variability and size of the datasets
+	\item Very slow to train
+	
+\end{itemize}
+We found that Voila Jones allow to be constructed on cacade classifiers which in turn help to detect face of all sizes. Thus we used this algorithm to detect face.
+\subsection{Recognition Algorithms}
+
+\subsubsection{Eigenface Method}
+\begin{itemize}
+	\item In this method Principal component analysis in which returns a linear combination of data with maximizes total variance among all training set \cite{facerec}. 
+	\item First from the image data base covariance matrix is calculated ,for which eigenvalues and eigenvectors are to be calculated. 
+	\item Through principal component analysis, any face can be represented as linear combination of these models that we derived.
+	\item For example, one's face might be composed of the average face plus x1\% from eigenface 1, x2\% from eigenface 2 and so on.                                         
+	\item Once eigenfaces of trained data set is formed it can be used to recognize new    face in real time.
+\end{itemize}
+
+\subsubsection{Fisherface Method}
+\begin{itemize}
+	\item In this method we use Linear Discriminant Analysis \cite{facerec}. 
+	\item It try to develop model which maximize ratio of the ratio of between-classes to within-classes variance
+	\item It is more class specific approach, retains data of labels that we give them.
+\end{itemize}
+
+\subsubsection{Local Binary Pattern Histogram Method (LBPH)}
+\begin{itemize}
+	\item Local binary patterns are used to recognize face features \cite{facerec}.
+	\item By this method we can differentiate features at locally in an image based on pixels relative to neighbours. 
+	\item This information is used to plot histograms based on frequency of the binary number and model can  be created from trained dataset. 
+	\item The advantage of this method to above mentioned method is variation in illumination effects can be managed as it is taking data relative to each other. 
+	\item It is more robust compared to other methods. 
+	\item The histograms that we got from training dataset is used to identify the label of histogram of new image.
+\end{itemize}
+ On looking at the advantages of LBPH method to recognize face at all illumination conditions. We have chosen LBPH method to recognize face.
+
+\subsection{Tracking Algorithms}
+
+We found that tracking in openCV is a loose end. It relies on detection \cite{facetrack}. The following are the steps involved in tracking:
+\begin{enumerate}
+	\item Detect eyes in the frame.
+	\item Calculate angle made with the horizontal
+	\item Rotate the frame with the calculated angle.
+	\item Detect face
+	\item Track face
+	\item If track failed go to 1.
+\end{enumerate}
+
+\section{Results}
+We successfully implemented the serial code for detection and recognition. Recognition also includes making the database of faces. We made database of all the team members and tried to recognize ourselves using the webcam feed. The result is given in the Figure \ref{res}.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.2]{./images/res.png}
+	\caption{Recognized faces with label}
+	\label{res}
+\end{figure}
+
+\section{Parallel Implementation}
+The video input was 14.5 fps thus we needed to have a speed of detection and recognition to be 0.07 seconds. For serial code we were getting 0.41 seconds, which results in lag between video feed and recognition output frame. We needed to speed up the process, thus we used the inbuilt functionality of openCV. OpenCV provides two datatypes to store frames namely Mat and UMat \cite{opencl}. 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.3]{./images/mul.jpg}
+	\caption{Multiples faces detected}
+	\label{mul}
+\end{figure}
+If a frame is declared as UMat OpenCV automatically do all the operations in a available GPU. There are some exceptions like imread and imshow function which do not recognize UMat, their we have made necessary conversion from UMat to Mat. The parallel implementation helps us to detect and recognize multiple faces with some speedup. The multiple face output is shown in the Figure \ref{mul}. We compared the results from the serial code and the parallel code as shown in the Figure \ref{plot}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[scale=0.3]{./images/plot.pdf}
+	\caption{Detected face vs time}
+	\label{plot}
+\end{figure}
 
 
 % An example of a floating figure using the graphicx package.
@@ -519,7 +643,7 @@ Subsubsection text here.
 
 
 \section{Conclusion}
-The conclusion goes here.
+We used openCV library to detect, recognize faces in the video feed from the webcam. We also attempted to track the face in the frame with would have resulted in much more speedup. We used Github for the version control of the project. The link for the project is \url{https://github.com/psnbaba/HPC_project}. We used Doxygen type commenting style to enable to generate document for the code base which will inturn help other to develop over the existing code base.
 
 
 
@@ -528,10 +652,6 @@ The conclusion goes here.
 
 
 % use section* for acknowledgment
-\section*{Acknowledgment}
-
-
-The authors would like to thank...
 
 
 
@@ -559,13 +679,12 @@ The authors would like to thank...
 % <OR> manually copy in the resultant .bbl file
 % set second argument of \begin to the number of references
 % (used to reserve space for the reference number labels box)
-\begin{thebibliography}{1}
 
-\bibitem{IEEEhowto:kopka}
-H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
-  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
+\bibliographystyle{plain}
+\bibliography{./ref}
 
-\end{thebibliography}
+
+
 
 
 
