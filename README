@@ -21,10 +21,16 @@ https://drive.google.com/open?id=1fyA2TSCowgjHrSmXWQUkyd1nvYRHB3Ir
 		 mkdir bulid
 
 4) change to build directory and execute "cmake ../"
-5) ecute "make"
+5) execute "make"
 6) run "./img_procsr 1" for serial processing
 7) or run "./img_procsr 2" for opencl processing
 8) "ctrl+c" for ending the process
 
+
+_____________________________________
+To make data.csv file 
+_____________________________________
+
+run python sort.py <absolute path to database containing s1 , s2> > data.csv
 
 
