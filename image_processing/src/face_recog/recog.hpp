@@ -344,6 +344,7 @@ using namespace face;
                         labels.push_back(atoi(classlabel.c_str()));
                 }else{
                     cout << "cannot read file in data.csv " << path << endl ; 
+                    exit(-1);
                 }
             }
         }
