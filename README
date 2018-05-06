@@ -1,6 +1,16 @@
 To compile the code
 
-1) Make sure your PC and OPENCV 3.4.1 installed
+1) Make sure your PC have OPENCV 3.4.1 with contrib installed
+
+package links
+for opencv
+
+https://drive.google.com/open?id=1c7ielAL4JPURz8KCde2cfBUUUTEZCz2f
+
+for opencv contrib
+
+https://drive.google.com/open?id=1fyA2TSCowgjHrSmXWQUkyd1nvYRHB3Ir
+
 
 2) change to image_processing folder
 
