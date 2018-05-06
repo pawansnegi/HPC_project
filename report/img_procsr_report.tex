@@ -331,7 +331,7 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{Face Detection, Recognition and Tracking}
+\title{Parallel - Face Detection, Recognition and Tracking}
 
 
 % author names and affiliations
@@ -340,19 +340,19 @@
 \author{\IEEEauthorblockN{Pawan Singh Negi}
 \IEEEauthorblockA{Department of\\Aerospace Engineering\\
 Indian Institute of Technology\\
-Powai, Bombay 400076\\
+Bombay, Powai 400076\\
 Email: pawan2713@gmail.com}
 \and
 \IEEEauthorblockN{Aarif Shaikh}
-\IEEEauthorblockA{Department of\\ XXX Engineering\\
+\IEEEauthorblockA{Department of\\ CSRE \\
 Indian Institute of Technology\\
-Powai, Bombay 400076\\
+Bombay, Powai 400076\\
 Email: aarifsk1618@gmail.com}
 \and
-\IEEEauthorblockN{M kartheek}
+\IEEEauthorblockN{Minnikanti kartheek}
 \IEEEauthorblockA{Department of\\ Mechanical Engineering\\
 Indian Institute of Technology\\
-Powai, Bombay 400076\\
+Bombay, Powai 400076\\
 Email: kartheek.minnikanti@iitb.ac.in}}
 
 % conference papers do not typically use \thanks and this command
@@ -392,7 +392,7 @@ Email: kartheek.minnikanti@iitb.ac.in}}
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
 \begin{abstract}
-The goal of this paper is to implement face recognition in real time using a parallel programming approach. Recently, there has been a lot of interest in this topic due to recent technological advancements which heavily rely on computer vision such as self-driving cars or autonomous quadcopters. Another area which has face recognition at the heart of it is law enforcement. However, scaling it to a crowd of faces in real time is a challenge because of the amount of constantly changing data to be processed. Moreover, algorithms are getting inherently complex, demanding a significant performance overhead. Thus, taking a parallel approach would provide a significant speedup and thus would help improve the performance of inherently complex face recognition algorithms.
+The goal of this paper is to implement face detection, recognition and tracking in real time using a parallel programming approach. Recently, there has been a lot of interest in this topic due to recent technological advancements which heavily rely on computer vision such as self-driving cars, autonomous quadcopters, and surveillance. However, scaling it to a crowd of faces in real time is challenging due to increased number of faces to be processed. Moreover, algorithms are getting inherently complex, demanding a significant performance overhead. Thus, taking a parallel approach would provide a significant speedup and thus would help improve the performance of inherently complex face detection, recognition and tracking algorithms.
 \end{abstract}
 
 % no keywords
@@ -413,7 +413,7 @@ The goal of this paper is to implement face recognition in real time using a par
 
 
 \section{Introduction}
-Face detection, recognition and tracking are one of the most researched topic in computer vision. In this report we have used openCV, a open-source software for computer vision to perform detection, recognition and tracking. OpenCV provides various different algorithms for detection, recognition and tracking. Instead of having all the algorithms in one library one have to work to connect detection to recognition to tracking an object. In this program, we started by writing a serial code which includes making database to recognize all the team members. In the second phase we parallelized the program using inbuilt functions enabling it to use the GPU in the machine. The report consists of the overall flow in the program, detection algorithms, recognition algorithms, tracking attempts and results. In a separate section we discussed some more software we used to enable team work and presentableness of the code.
+Face detection, recognition and tracking are one of the most researched topic in computer vision. In this report we have used openCV, an open-source library for computer vision to perform detection, recognition and tracking. OpenCV provides various different algorithms for detection, recognition and tracking. Instead of having all the algorithms in one library one have to work to connect detection to recognition and  recognition to tracking of an object. In this program, we started by writing a serial code which includes making database to recognize all the team members. In the second phase we parallelized the program using the inbuilt functions enabling it to use the GPU in the machine. The report consists of the overall flow of the program, detection algorithms, recognition algorithms, object tracking, parallel implementation and results.
 
 \section{Overall flow}
 \begin{figure}[h!]
@@ -438,84 +438,89 @@ Face detection, recognition and tracking are one of the most researched topic in
 	\caption{Flowchart}
 	\label{flow}
 \end{figure}
-In the Figure \ref{flow}, the vedio is the starting point. One frame is taken at a time. Detection of face is performed, it is possible to have multiple faces. Detection gives cropped faces to the recognition block. In the recognition block, using a database it tries to recognize the face. If a match is found, it returns a label which in turn give name to the face. Detect face provides a frame to the. Thus the output frame contains the face name and a box around it.
+In the Figure \ref{flow}, the video is the starting point. One frame is taken at a time which goes to the Detect face block. Detection of face is performed. Here it is possible to detect multiple faces, if present. It gives cropped faces to the recognize block. In the recognize block, using the training faces it tries to recognize the face. If a match is found, it returns a label which in turn give a name to the face. Detect face provides a frame to the output frame. Thus the output frame contains the face name and a box around it.
 
 \section{Algorithms in OpenCV}
-OpenCV provides various algorithms for detection, recognition and tracking. We studied and compared all of them. Depending upon the speed and accuracy we chosed one of them.
+OpenCV provides various algorithms for detection, recognition and tracking. We studied and compared all of them. Depending upon the speed and accuracy we chose one of them.
 
 \subsection{Detection Algorithms}
 
 \subsubsection{Viola Jones Face detection algorithm}
 \begin{itemize}
 	\item It was the first framework to provide competitive object detection rates in real time \cite{facedet}. 
-	\item It was proposed in 2001 and was found to present high accuracy compared to existing algorithms.
+	\item It was proposed by Viola and Jones (2001) \cite{990517} and was found to present high accuracy compared to existing algorithms.
 	\item It was found to be suitable for real time detection as it had low latency.
-	\item A cascade of classifiers can be built upon it which would minimize computation time and improve face detection accuracy
-	\item Long training time
-	\item Limited head poses
-	\item Does not detect black faces
+	\item A cascade of classifiers can be built upon it which would minimize computation time and improve face detection accuracy.
+	\item It takes a long time to train the model.
+	\item It can detect a limited number of head poses/orientations.
+	\item It does not detect dark faces.
 \end{itemize}
 
 \subsubsection{Local Binary Pattern}
 \begin{itemize}
-	\item Local Binary Pattern was found to be Extremely effective in describing image texture features and has its uses in texture analysis, image retrievals, face recognition and image segmentation. 
-	\item It tracks the movement of an object by using background subtraction. It is computationally simple and easy to implement. 
-	\item It is tolerant to illumination changes
-	\item Using large local regions increases errors
-	\item Not accurate
-	\item Suitable only for binary and grayscale images
-	
+	\item Local Binary Pattern was found to be Extremely effective in describing image texture features \cite{10.1007/978-981-10-5272-9_20}.
+	\item It has use in texture analysis, image retrievals, face recognition and image segmentation. 
+	\item It tracks the movement of an object by using background subtraction. 
+	\item It is computationally simple and easy to implement. 
+	\item It is tolerant to illumination changes.
+	\item Using large local regions increases errors.
+	\item It is robust but not accurate.
+	\item It is suitable only for binary and grayscale images.	
 \end{itemize}
 
 \subsubsection{AdaBoost Algorithm}
 \begin{itemize}
-	\item Sensitive to noisy data, hence returns a suboptimal solution
-	\item Adaptive, one weak classifier added in each iteration
-	\item Not prone to over-fitting
-	\item Simple implementation
-	\item Result heavily dependent on quality of training data in terms of interclass variability and size of the datasets
-	\item Very slow to train
+	\item it is sensitive to noisy data, hence returns a suboptimal solution \cite{10.1007/978-981-10-5272-9_20}.
+	\item It is adaptive, one weak classifier added in each iteration.
+	\item It does not over-fit to the object in training data set. 
+	\item It has a simple implementation.
+	\item The results are heavily dependent on the quality of the training data in terms of interclass variability and size of the datasets.
+	\item It is very slow to train.
 	
 \end{itemize}
-We found that Voila Jones allow to be constructed on cacade classifiers which in turn help to detect face of all sizes. Thus we used this algorithm to detect face.
+Haar cacade classifiers are implemented upon the Viola-Jones algorithm. A trained model of it is present in OpenCV library. The good performance achieved compared to other techniques makes it appropriate for solving the current problem, and the same is used in this program.
 \subsection{Recognition Algorithms}
 
 \subsubsection{Eigenface Method}
 \begin{itemize}
-	\item In this method Principal component analysis in which returns a linear combination of data with maximizes total variance among all training set \cite{facerec}. 
-	\item First from the image data base covariance matrix is calculated ,for which eigenvalues and eigenvectors are to be calculated. 
-	\item Through principal component analysis, any face can be represented as linear combination of these models that we derived.
-	\item For example, one's face might be composed of the average face plus x1\% from eigenface 1, x2\% from eigenface 2 and so on.                                         
-	\item Once eigenfaces of trained data set is formed it can be used to recognize new    face in real time.
+	\item This method uses principal component analysis (PCA) which returns a linear combination of data while maximizing the total variance among all the training sets \cite{facerec}. 
+	\item From the image database a covariance matrix is calculated, for which eigenvalues and eigenvectors are calculated. 
+	\item Through PCA, any face can be represented as linear combination of derived models.
+	\item Any face is represented as
+	\begin{equation}
+		face = \mu + \sum_{i=1}^{N} x_i \nu_{i}
+	\end{equation}
+	where $\mu$ is meanface, $x_i$ is the weight and $\nu_{i}$ is the eigenface.                                          
+	\item Once eigenfaces of trained data set is formed, it can be used to recognize new image of any face in the database in real time.
 \end{itemize}
 
 \subsubsection{Fisherface Method}
 \begin{itemize}
-	\item In this method we use Linear Discriminant Analysis \cite{facerec}. 
-	\item It try to develop model which maximize ratio of the ratio of between-classes to within-classes variance
-	\item It is more class specific approach, retains data of labels that we give them.
+	\item This method uses Linear Discriminant Analysis \cite{facerec}. 
+	\item It tries to develop a model which maximizes the ratio of between-classes to within-classes variance.
+	\item It is more class specific approach.
 \end{itemize}
 
 \subsubsection{Local Binary Pattern Histogram Method (LBPH)}
 \begin{itemize}
-	\item Local binary patterns are used to recognize face features \cite{facerec}.
-	\item By this method we can differentiate features at locally in an image based on pixels relative to neighbours. 
-	\item This information is used to plot histograms based on frequency of the binary number and model can  be created from trained dataset. 
-	\item The advantage of this method to above mentioned method is variation in illumination effects can be managed as it is taking data relative to each other. 
+	\item It uses local binary patterns to recognize face features \cite{facerec}.
+	\item This method can differentiate features locally in an image based on pixels relative to neighbours. 
+	\item This information is used to plot histograms based on frequency of the binary number which gives a model from trained dataset. 
+	\item The advantage of this method to above mentioned method is that the variation in illumination effects can be managed as it is taking data relative to each other. 
 	\item It is more robust compared to other methods. 
-	\item The histograms that we got from training dataset is used to identify the label of histogram of new image.
+	\item The histograms that we got from training dataset is used to identify new image of any face in the database.
 \end{itemize}
- On looking at the advantages of LBPH method to recognize face at all illumination conditions. We have chosen LBPH method to recognize face.
+On looking at the advantages of LBPH method to recognize face at all illumination conditions and robustness, we have chosen LBPH method for face recognition.
 
 \subsection{Tracking Algorithms}
 
 We found that tracking in openCV is a loose end. It relies on detection \cite{facetrack}. The following are the steps involved in tracking:
 \begin{enumerate}
 	\item Detect eyes in the frame.
-	\item Calculate angle made with the horizontal
+	\item Calculate angle made with the horizontal.
 	\item Rotate the frame with the calculated angle.
-	\item Detect face
-	\item Track face
+	\item Detect face.
+	\item Track face.
 	\item If track failed go to 1.
 \end{enumerate}
 
@@ -529,14 +534,14 @@ We successfully implemented the serial code for detection and recognition. Recog
 \end{figure}
 
 \section{Parallel Implementation}
-The video input was 14.5 fps thus we needed to have a speed of detection and recognition to be 0.07 seconds. For serial code we were getting 0.41 seconds, which results in lag between video feed and recognition output frame. We needed to speed up the process, thus we used the inbuilt functionality of openCV. OpenCV provides two datatypes to store frames namely Mat and UMat \cite{opencl}. 
+The video input is 14.5 fps thus we need to have a speed of detection and recognition to be 0.07 seconds. For serial code we were getting 0.41 seconds, which results in lag between video feed and recognition output frame. We needed to speed up the process, thus we used the inbuilt functionality of openCV for parallelization. OpenCV provides two classes to store frames namely Mat and UMat \cite{opencl}. 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[scale=0.3]{./images/mul.jpg}
 	\caption{Multiples faces detected}
 	\label{mul}
 \end{figure}
-If a frame is declared as UMat OpenCV automatically do all the operations in a available GPU. There are some exceptions like imread and imshow function which do not recognize UMat, their we have made necessary conversion from UMat to Mat. The parallel implementation helps us to detect and recognize multiple faces with some speedup. The multiple face output is shown in the Figure \ref{mul}. We compared the results from the serial code and the parallel code as shown in the Figure \ref{plot}
+If a frame is declared as UMat OpenCV automatically do all the operations in the available GPU. There are some exceptions like imread and imshow function which do not recognize UMat, there we have made necessary conversion from UMat to Mat. The parallel implementation helps us to detect and recognize multiple faces with some speedup. The multiple face output is shown in the Figure \ref{mul}. We compared the results of the serial code with the parallel code as shown in the Figure \ref{plot}
 \begin{figure}[h!]
 	\centering
 	\includegraphics[scale=0.6]{./images/plot.pdf}
@@ -643,7 +648,7 @@ If a frame is declared as UMat OpenCV automatically do all the operations in a a
 
 
 \section{Conclusion}
-We used openCV library to detect, recognize faces in the video feed from the webcam. We also attempted to track the face in the frame with would have resulted in much more speedup. We used Github for the version control of the project. The link for the project is \url{https://github.com/psnbaba/HPC_project}. We used Doxygen type commenting style to enable to generate document for the code base which will inturn help other to develop over the existing code base.
+We used openCV library to detect and recognize faces in the video feed from the webcam. We also attempted to track the face in the frame which would have resulted in a significant speedup as it decreases the computational load. We used Github for the version control of the project. The link for the project is \url{https://github.com/psnbaba/HPC_project}. We used Doxygen type commenting style to enable document generation for the code base which will in turn help others to develop over the existing code base.
 
 
 

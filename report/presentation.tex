@@ -37,14 +37,14 @@
 \addbibresource{ref.bib}
 
 \newdateformat{monthyeardate}{\footnotesize \monthname[\THEMONTH], \THEYEAR}
-\title{Face Detection, Recognition and Tracking}
+\title{Parallel - Face Detection, Recognition and Tracking}
 \author[Pawan]{\texorpdfstring{\\}{}
     Pawan Singh Negi \- \texorpdfstring{$174010003$}{}  \texorpdfstring{\\}{}
     Aarif Shaikh \- \texorpdfstring{$173310007$}{}  \texorpdfstring{\\}{}
-    M Kartheek \- \texorpdfstring{$163100065$}{}  \texorpdfstring{\\}{}
+    Minnikanti Kartheek \- \texorpdfstring{$163100065$}{}  \texorpdfstring{\\}{}
 }
 
-\institute[IITB]{Indian Institute of Technology, Bombay}
+\institute[IITB]{Indian Institute of Technology Bombay}
 
 
 \begin{document}
@@ -57,7 +57,8 @@
 \begin{frame}
     \frametitle{Motivation}
     \begin{itemize}
-        \item Face recognition - a very demanding technology.
+        \item Face recognition - very demanding technology.
+        \item Used in self-driving cars, autonomous quadcopters, and surveillance
         \item It needs to be fast and accurate.
         \item Very high resolution videos very common
     \end{itemize}
@@ -71,8 +72,9 @@
 \frametitle{Introduction}
 \begin{itemize}
 	\item Used OpenCV library
+	\item Real time face detection and recognition.
+	\item Comparison between various available algorithm.
 	\item Both serial and parallel code were compared.
-	\item Comparison between various algorithm 
 \end{itemize}
 \end{frame}
 
@@ -156,7 +158,8 @@
 		
 	\end{column}
 \end{columns} 
-
+\footnotetext[1]{\cite{10.1007/978-981-10-5272-9_20}}
+\footnotetext[1]{\cite{990517}}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -241,18 +244,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}
-\frametitle{More on Voila Jones}
-\begin{itemize}
-	\item We used Voila Jones for detection.
-	\item It is fast and accurate
-	\item A cascade of classifiers can be built
-	\item Haar Cascading is used 
-\end{itemize}
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}
 \frametitle{Face Recognition}
 \resizebox{12cm}{1cm}{
 	\begin{tikzpicture}[node distance=2cm]
@@ -328,7 +319,7 @@
 	\begin{column}{.35\textwidth}
 		\begin{itemize}
 			\item Linear Discriminant Analysis 
-			\item Maximize ratio of the ratio of between-classes to within-classes variance
+			\item Maximize ratio of between-classes to within-classes variance
 			\item More accurate
 		\end{itemize}
 	\end{column}
@@ -362,15 +353,15 @@
 	\begin{column}{.35\textwidth}
 		\begin{itemize}
 			\item Linear Discriminant Analysis 
-			\item Maximize ratio of the ratio of between-classes to within-classes variance
+			\item Maximize ratio of between-classes to within-classes variance
 			\item More accurate
 		\end{itemize}
 	\end{column}
 	\begin{column}{.35\textwidth}
 		\begin{itemize}
-			\item Local binary patterns Histogram
+			\item Local binary patterns histogram
 			\item Grayscale image - each pixel are given binary digit based on neighbours 
-			\item Unaffected by variance
+			\item Unaffected by change in illumination
 		\end{itemize}
 	\end{column}
 \end{columns} 
@@ -394,10 +385,9 @@
 \frametitle{Speed-up}
 \begin{itemize}
 	\item For multiple faces needed speed.
-	\item OpenCV provides two Mat definition
-	\item Mat do not use GPU.
+	\item OpenCV provides two classes for storing image Mat and UMat.
 	\item UMat uses GPU.
-	\item Wrote function templates to handle both.
+	\item Wrote function templates to handle both classes.
 	\item Made necessary conversion Mat$<->$UMat.
 \end{itemize}
 \end{frame}
@@ -427,7 +417,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}
-\frametitle{Some attempts for speed-up}
+\frametitle{Some attempts for more speed-up}
 \begin{itemize}
 	\item Attempted tracking faces
 	\item flow was as follows:
@@ -436,7 +426,7 @@
 		\item Calculate rotation
 		\item Rotate frame
 		\item Detect face
-		\item Track face...
+		\item Track face
 	\end{itemize}	
 \end{itemize}
 \footnotetext[1]{\cite{facetrack}}
@@ -445,7 +435,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}
-\frametitle{Some course related stuff}
+\frametitle{Miscellaneous}
 \begin{itemize}
 	\item Used Github for version control - \url{https://github.com/psnbaba/HPC_project}
 	\item Used doxygen for documentation	
@@ -459,8 +449,8 @@
 \begin{itemize}
 	\item Used OpenCV for face detection and recognition.
 	\item Face detection and recognition was parallelized.
-	\item Other software taught in course used
-	\item Face tracking was attempted for more speed-up	
+	\item Other software taught in course used.
+	\item Face tracking was attempted for more speed-up.
 \end{itemize}
 \end{frame}
 

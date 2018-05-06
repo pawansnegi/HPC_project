@@ -22,6 +22,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include<sys/stat.h>
 
 using namespace std;
 using namespace cv;
@@ -331,13 +332,19 @@ using namespace face;
             CV_Error(CV_StsBadArg, error_message);
         }
         string line, path, classlabel;
+        struct stat buf;
         while (getline(file, line)) {
             stringstream liness(line);
             getline(liness, path, separator);
             getline(liness, classlabel);
             if (!path.empty() && !classlabel.empty()) {
-                images.push_back(imread(path, 0));
-                labels.push_back(atoi(classlabel.c_str()));
+                
+                if (stat(path.c_str(), &buf) == 0) {
+                        images.push_back(imread(path, 0));
+                        labels.push_back(atoi(classlabel.c_str()));
+                }else{
+                    cout << "cannot read file in data.csv " << path << endl ; 
+                }
             }
         }
 
